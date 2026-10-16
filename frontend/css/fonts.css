@@ -1,0 +1,17 @@
+/* Font disimpan lokal (assets/vendor/fonts) supaya situs tetap tampil benar tanpa internet / CDN. */
+@font-face{font-family:'Poppins';font-weight:400;font-display:swap;src:url('../assets/vendor/fonts/poppins-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Poppins';font-weight:500;font-display:swap;src:url('../assets/vendor/fonts/poppins-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Poppins';font-weight:600;font-display:swap;src:url('../assets/vendor/fonts/poppins-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Poppins';font-weight:700;font-display:swap;src:url('../assets/vendor/fonts/poppins-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Quicksand';font-weight:500;font-display:swap;src:url('../assets/vendor/fonts/quicksand-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Quicksand';font-weight:600;font-display:swap;src:url('../assets/vendor/fonts/quicksand-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Quicksand';font-weight:700;font-display:swap;src:url('../assets/vendor/fonts/quicksand-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Nunito';font-weight:400;font-display:swap;src:url('../assets/vendor/fonts/nunito-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Nunito';font-weight:600;font-display:swap;src:url('../assets/vendor/fonts/nunito-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Nunito';font-weight:700;font-display:swap;src:url('../assets/vendor/fonts/nunito-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Nunito';font-weight:800;font-display:swap;src:url('../assets/vendor/fonts/nunito-latin-800-normal.woff2') format('woff2')}
+@font-face{font-family:'Baloo 2';font-weight:400;font-display:swap;src:url('../assets/vendor/fonts/baloo-2-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Baloo 2';font-weight:500;font-display:swap;src:url('../assets/vendor/fonts/baloo-2-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Baloo 2';font-weight:600;font-display:swap;src:url('../assets/vendor/fonts/baloo-2-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Baloo 2';font-weight:700;font-display:swap;src:url('../assets/vendor/fonts/baloo-2-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Bagel Fat One';font-weight:400;font-display:swap;src:url('../assets/vendor/fonts/bagel-fat-one-latin-400-normal.woff2') format('woff2')}

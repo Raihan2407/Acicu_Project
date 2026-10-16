@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Placeholder QRIS">
+  <rect width="240" height="240" rx="14" fill="#fff"/>
+  <rect x="8" y="8" width="224" height="224" rx="10" fill="none" stroke="#e5aabd" stroke-width="3" stroke-dasharray="10 8"/>
+  <g fill="#e9c4d0">
+    <rect x="30" y="30" width="52" height="52" rx="6"/><rect x="158" y="30" width="52" height="52" rx="6"/><rect x="30" y="158" width="52" height="52" rx="6"/>
+    <rect x="98" y="30" width="16" height="16"/><rect x="98" y="62" width="16" height="16"/><rect x="126" y="46" width="16" height="16"/>
+    <rect x="98" y="98" width="16" height="16"/><rect x="130" y="98" width="16" height="16"/><rect x="162" y="98" width="16" height="16"/>
+    <rect x="98" y="130" width="16" height="16"/><rect x="146" y="130" width="16" height="16"/><rect x="178" y="130" width="32" height="16"/>
+    <rect x="98" y="162" width="16" height="16"/><rect x="130" y="178" width="32" height="16"/><rect x="178" y="178" width="32" height="32"/>
+  </g>
+  <rect x="34" y="96" width="172" height="52" rx="10" fill="#fff" stroke="#e5aabd" stroke-width="2"/>
+  <text x="120" y="119" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b3114b">QRIS BELUM DIPASANG</text>
+  <text x="120" y="137" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#7b6570">Ganti dengan QRIS asli (lihat README)</text>
+</svg>

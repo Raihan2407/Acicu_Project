@@ -1,0 +1,191 @@
+/* =========================
+   Halaman checkout, pembayaran & status pesanan (pelanggan)
+========================= */
+body.page-checkout,
+body.page-payment,
+body.page-status{
+  background:var(--pink-bg);
+  font-family:'Nunito',sans-serif;
+  font-size:1.5rem;
+  color:var(--ink);
+}
+html{ font-size:62.5%; } /* 1rem = 10px, sama seperti style.css landing */
+
+.co-wrap{ width:min(1290px, 94%); margin:0 auto; padding:18px 0 60px; }
+
+.crumbs{ display:flex; align-items:center; gap:8px; font-size:1.3rem; font-weight:700; color:#6a4a56; margin:6px 4px 16px; flex-wrap:wrap; }
+.crumbs a{ color:#6a4a56; text-decoration:none; }
+.crumbs i.fa-chevron-right{ font-size:.9rem; opacity:.6; }
+.crumbs .current{ color:var(--pink-deep); }
+
+.card{ background:#fff; border-radius:38px; box-shadow:0 6px 22px rgba(160,40,80,.08); }
+
+.co-hero{ padding:34px 40px; margin-bottom:22px; }
+.co-hero h1{ font:700 3.4rem 'Quicksand',sans-serif; color:var(--pink-deep); margin-bottom:6px; }
+.co-hero p{ max-width:560px; color:#4b3a42; font-size:1.5rem; line-height:1.5; }
+
+.co-grid{ display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:28px; align-items:start; }
+
+.form-card{ padding:30px 34px 36px; }
+.card-head{ display:flex; gap:14px; align-items:center; padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid #f3e3e9; }
+.card-head h2{ font:700 2rem 'Quicksand',sans-serif; }
+.card-head p{ font-size:1.25rem; color:#6f5a64; }
+.icon-bubble{ width:44px; height:44px; flex:none; display:grid; place-items:center; border-radius:50%; background:#fde1ea; color:var(--pink-deep); font-size:1.8rem; }
+
+.field{ margin-bottom:18px; }
+.field label{ display:block; font-weight:800; font-size:1.4rem; margin-bottom:8px; }
+.field label b{ color:var(--pink-deep); }
+.side-hint{ float:right; font-weight:600; font-size:1.2rem; color:#8d7681; }
+.field-row{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+
+.input{ display:flex; align-items:center; gap:10px; padding:0 16px; height:50px; background:#fdf2f6; border:2px solid transparent; border-radius:14px; transition:border-color .2s, background .2s; }
+.input:focus-within{ border-color:var(--pink); background:#fff; }
+.input i{ color:#a1788a; font-size:1.6rem; }
+.input i.wa{ color:#1fb855; }
+.input input,.input select{ flex:1; min-width:0; height:100%; border:none; outline:none; background:transparent; font:600 1.45rem 'Nunito',sans-serif; color:var(--ink); }
+.input select{ cursor:pointer; }
+.input input::placeholder,textarea::placeholder{ color:#a98f9b; font-weight:500; }
+
+textarea{ width:100%; padding:14px 16px; min-height:112px; resize:vertical; background:#fdf2f6; border:2px solid transparent; border-radius:14px; outline:none; font:600 1.45rem/1.5 'Nunito',sans-serif; color:var(--ink); transition:border-color .2s, background .2s; }
+textarea:focus{ border-color:var(--pink); background:#fff; }
+
+.hint{ display:block; margin-top:6px; font-size:1.2rem; color:#7b6570; }
+.err{ display:none; margin-top:6px; font-size:1.25rem; font-weight:800; color:#c4123f; }
+.field.invalid .err{ display:block; }
+.field.invalid .input,.field.invalid textarea{ border-color:#e44d73; background:#fff5f8; }
+
+.alert-box{ margin-bottom:18px; padding:12px 16px; border-radius:14px; background:#ffe9ef; border:1px solid #f5b5c6; color:#a20f3a; font-weight:800; font-size:1.35rem; line-height:1.45; }
+
+/* ---------- ringkasan ---------- */
+.side{ display:flex; flex-direction:column; gap:18px; position:sticky; top:140px; }
+.sum-card{ padding:28px 28px 26px; }
+.sum-head{ display:flex; justify-content:space-between; align-items:center; padding-bottom:14px; margin-bottom:6px; border-bottom:1px solid #f3e3e9; }
+.sum-head h2{ font:700 1.9rem 'Quicksand',sans-serif; display:flex; gap:8px; align-items:center; }
+.sum-head h2 i{ color:var(--pink-deep); }
+.chip{ padding:4px 12px; border-radius:999px; background:#fde1ea; color:var(--pink-deep); font-weight:800; font-size:1.15rem; }
+
+.sum-item{ display:grid; grid-template-columns:56px 1fr auto; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid #f3e3e9; }
+.sum-img{ position:relative; width:56px; height:56px; }
+.sum-img img{ width:100%; height:100%; object-fit:cover; border-radius:50%; background:#fdf2f6; }
+.sum-img em{ position:absolute; top:-6px; left:-6px; min-width:24px; height:24px; padding:0 5px; border-radius:999px; background:var(--pink-deep); color:#fff; font:800 1.1rem/24px 'Nunito',sans-serif; text-align:center; font-style:normal; }
+.sum-name{ font-weight:800; font-size:1.45rem; }
+.sum-note{ font-size:1.15rem; color:#6f5a64; line-height:1.35; margin-top:2px; }
+.sum-price{ font-weight:800; color:var(--pink-deep); font-size:1.4rem; white-space:nowrap; }
+.sum-warn{ grid-column:1 / -1; font-size:1.2rem; font-weight:800; color:#c4123f; }
+
+.totals{ margin:14px 0 14px; padding:14px 16px; border-radius:16px; background:#f8f0f3; }
+.totals > div{ display:flex; justify-content:space-between; align-items:center; font-size:1.35rem; padding:3px 0; }
+.totals .green{ color:#0E7A3B; }
+.totals .grand{ margin-top:8px; padding-top:10px; border-top:1px solid #e9d6de; font:700 1.8rem 'Quicksand',sans-serif; }
+.totals .grand strong{ color:var(--pink-deep); font-size:2.4rem; }
+.mini-badges{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.mini-badges span{ flex:1; min-width:150px; padding:8px 10px; border-radius:10px; background:#f8f0f3; font-weight:800; font-size:1.15rem; color:#0E7A3B; }
+.mini-badges span:last-child{ color:var(--pink-deep); }
+
+.consult{ margin-top:14px; text-align:center; font-size:1.2rem; color:#5f4b55; }
+.consult a{ color:#0A6B31; font-weight:800; text-decoration:none; }
+
+.guarantee{ padding:14px 20px; border-radius:20px; background:#f7e9ee; }
+.guarantee strong{ display:block; color:var(--pink-deep); font-size:1.3rem; margin-bottom:2px; }
+.guarantee p{ font-size:1.2rem; color:#5f4b55; line-height:1.45; }
+
+.co-empty{ padding:60px 30px; text-align:center; max-width:560px; margin:30px auto; }
+.co-empty i{ font-size:5rem; color:var(--pink-soft); }
+.co-empty h2{ font:700 2.6rem 'Quicksand',sans-serif; margin:10px 0 6px; }
+.co-empty p{ color:#6f5a64; margin-bottom:20px; }
+.co-empty .btn-pink{ display:inline-flex; width:auto; padding:12px 34px; }
+
+/* ---------- footer sederhana ---------- */
+.simple-footer{ display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:24px; align-items:center; padding:34px 6%; background:#fff; margin-top:10px; }
+.sf-brand{ display:flex; align-items:center; gap:10px; font:700 2.2rem 'Quicksand',sans-serif; color:var(--pink-deep); }
+.sf-brand img{ width:34px; height:34px; border-radius:50%; }
+.simple-footer p{ font-size:1.25rem; color:#5f4b55; line-height:1.5; }
+.sf-center{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.sf-title{ font:800 1.2rem 'Nunito',sans-serif; letter-spacing:.05em; }
+.sf-wa{ padding:8px 18px; border-radius:999px; background:#0A6B31; color:#fff; font-weight:800; font-size:1.3rem; text-decoration:none; }
+.sf-social{ display:flex; gap:18px; font-size:1.2rem; color:#5f4b55; font-weight:700; }
+.sf-right{ text-align:right; }
+.sf-pill{ display:inline-block; padding:6px 14px; border-radius:999px; background:#fde1ea; color:var(--pink-deep); font-weight:800; font-size:1.2rem; margin-bottom:8px; }
+
+@media(max-width:980px){
+  .co-grid{ grid-template-columns:1fr; }
+  .side{ position:static; }
+  .simple-footer{ grid-template-columns:1fr; text-align:center; }
+  .sf-brand{ justify-content:center; }
+  .sf-right{ text-align:center; }
+}
+@media(max-width:560px){
+  .co-hero{ padding:24px 22px; }
+  .co-hero h1{ font-size:2.6rem; }
+  .form-card,.sum-card{ padding:22px 18px; }
+  .field-row{ grid-template-columns:1fr; gap:0; }
+  .card{ border-radius:28px; }
+}
+
+/* =========================
+   Halaman pembayaran
+========================= */
+.state-card{ padding:56px 30px; text-align:center; max-width:560px; margin:30px auto; }
+.state-card > i{ font-size:4.6rem; color:var(--pink); }
+.state-card.bad > i{ color:#c4123f; }
+.state-card h2{ font:700 2.6rem 'Quicksand',sans-serif; margin:12px 0 6px; }
+.state-card p{ color:#6f5a64; margin-bottom:18px; line-height:1.5; }
+.state-card .btn-pink{ display:inline-flex; width:auto; padding:12px 34px; }
+
+.pay-hero{ display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; }
+.countdown{ min-width:170px; padding:12px 22px; text-align:center; border-radius:22px; background:#fff0f4; border:2px dashed var(--pink-soft); }
+.countdown span{ display:block; font-weight:800; font-size:1.2rem; color:#7b6570; }
+.countdown strong{ font:700 3.4rem 'Quicksand',sans-serif; color:var(--pink-deep); letter-spacing:.04em; }
+.countdown.low strong{ color:#d11a2a; animation:blink 1s steps(2) infinite; }
+@keyframes blink{ 50%{ opacity:.45; } }
+
+.amount-banner{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 20px; margin-bottom:18px; border-radius:18px; background:#fde1ea; }
+.amount-banner span{ font-weight:800; font-size:1.35rem; color:#6a2b43; }
+.amount-banner strong{ font:700 3rem 'Quicksand',sans-serif; color:var(--pink-deep); }
+
+.pay-methods{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:22px; }
+.pay-box{ padding:18px; border-radius:20px; background:#faf3f6; display:flex; flex-direction:column; gap:12px; }
+.pay-tag{ display:flex; justify-content:space-between; align-items:center; font:800 1.25rem 'Nunito',sans-serif; letter-spacing:.04em; color:var(--pink-deep); }
+.pay-tag em{ font-style:normal; padding:3px 10px; border-radius:999px; background:#ece1e6; color:#4b3a42; }
+.pay-box > img{ width:190px; max-width:100%; align-self:center; border-radius:14px; background:#fff; padding:6px; }
+.pay-box > p{ text-align:center; font-size:1.2rem; color:#5f4b55; line-height:1.45; }
+.rek{ padding:14px; border-radius:14px; background:#fff; }
+.rek small{ color:#6f5a64; font-size:1.2rem; }
+.rek-row{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin:6px 0; }
+.rek-row strong{ font:700 2.4rem 'Quicksand',sans-serif; letter-spacing:.03em; }
+.copy-btn{ padding:6px 14px; border:none; border-radius:999px; background:#fde1ea; color:var(--pink-deep); font:800 1.2rem 'Nunito',sans-serif; cursor:pointer; }
+.copy-btn.done{ background:#d6f5e1; color:#0E7A3B; }
+.pay-note{ display:flex; gap:8px; padding:12px 14px; border-radius:14px; background:#fff3f6; font-size:1.2rem; line-height:1.45; color:#5f4b55; }
+.pay-note i{ color:var(--pink-deep); margin-top:2px; }
+
+.how{ margin:0; padding:16px 20px 16px 38px; border-radius:18px; background:#f8f0f3; display:flex; flex-direction:column; gap:6px; font-size:1.35rem; line-height:1.45; }
+.how li::marker{ font-weight:800; color:var(--pink-deep); }
+
+.pay-hero .countdown + * { margin:0; }
+.deliver-line{ display:flex; gap:10px; align-items:flex-start; margin-bottom:16px; font-weight:800; font-size:1.3rem; color:#0E7A3B; }
+.deliver-line i{ margin-top:3px; }
+
+.btn-wa{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:12px; padding:13px 16px; border-radius:999px; background:#25D366; color:#fff; font:800 1.4rem 'Nunito',sans-serif; text-decoration:none; box-shadow:0 4px 0 #1aa34f; }
+
+@media(max-width:700px){
+  .pay-methods{ grid-template-columns:1fr; }
+  .amount-banner strong{ font-size:2.4rem; }
+}
+
+/* ---------- pilihan jam kirim (chip yang mudah disentuh) ---------- */
+.slot-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:8px; }
+.slot{ border:1.5px solid #F2C9D6; background:#fff; color:var(--pink-deep); font:700 1.4rem 'Nunito',sans-serif; padding:11px 6px; border-radius:14px; cursor:pointer; transition:.15s; text-align:center; }
+.slot:hover:not(:disabled){ border-color:var(--pink); background:#FFF3F7; }
+.slot.on{ background:var(--pink); border-color:var(--pink); color:#fff; box-shadow:0 4px 0 #c9335f; }
+.slot:disabled{ background:#F4EEF0; color:#B9A9B0; border-color:#EADFE3; cursor:not-allowed; text-decoration:line-through; }
+.slot-empty{ grid-column:1/-1; color:#8A7B82; font:600 1.3rem 'Nunito',sans-serif; }
+.field.invalid .slot-grid{ outline:2px solid #C0262D; outline-offset:4px; border-radius:14px; }
+.slot-note{ grid-column:1/-1; font:600 1.2rem 'Nunito',sans-serif; color:var(--pink-deep); }
+
+/* QRIS dinamis */
+.dyn-qr{ width:min(240px,100%); margin:10px auto; padding:10px; background:#fff; border-radius:16px; box-shadow:0 0 0 2px #FBD6E1 inset; }
+.dyn-qr svg{ display:block; width:100%; height:auto; }
+.sim-btn{ margin-top:10px; border:2px dashed var(--pink); background:#fff; color:var(--pink-deep,#B3114B); font:800 1.3rem 'Nunito',sans-serif; padding:10px 18px; border-radius:999px; cursor:pointer; }
+.sim-btn:hover{ background:#FFE6EE; }
+.auto-note{ margin:12px 0 4px; font:700 1.25rem 'Nunito',sans-serif; color:#6c5c64; text-align:center; }
+.auto-note i{ color:var(--pink); margin-right:6px; }

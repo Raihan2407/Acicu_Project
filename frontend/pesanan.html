@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Status Pesanan - ACICU</title>
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/vendor/fa/all.min.css" />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/checkout.css" />
+    <link rel="stylesheet" href="css/status.css" />
+  </head>
+  <body class="page-status">
+    <main class="st-wrap">
+      <div class="card state-card" id="stateCard">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <h2>Memuat pesanan...</h2>
+      </div>
+
+      <div id="view" hidden>
+        <header class="st-hero">
+          <span class="st-check" id="heroIcon"><i class="fa-solid fa-check"></i></span>
+          <h1 id="heroTitle">Yeeay! Pre-Order Kamu Berhasil Dikirim!</h1>
+          <p id="heroText">Terima kasih sudah memesan cemilan kenyal gurih ACICU. Dapur kami siap memproses pesananmu dengan bahan segar pilihan!</p>
+        </header>
+
+        <div class="st-grid">
+          <div class="st-left">
+            <section class="card st-card">
+              <small class="label">NOMOR ORDER</small>
+              <span class="po-pill" id="poNo">PO-0000</span>
+
+              <div class="steps" id="steps">
+                <div class="step" data-step="1"><span class="dot"><i class="fa-solid fa-check"></i></span><b>Menunggu<br>Konfirmasi</b><small id="t1">-</small></div>
+                <div class="step" data-step="2"><span class="dot"><i class="fa-solid fa-fire-burner"></i></span><b>Sedang Diproses<br>Dapur</b><small id="t2">-</small></div>
+                <div class="step" data-step="3"><span class="dot"><i class="fa-solid fa-motorcycle"></i></span><b>Selesai /<br>Dikirim</b><small id="t3">-</small></div>
+              </div>
+
+              <div class="tiles">
+                <div><i class="fa-regular fa-calendar"></i><small>Waktu Pesan</small><b id="orderedAt">-</b></div>
+                <div><i class="fa-regular fa-user"></i><small>Penerima</small><b id="receiver">-</b><em id="receiverWa">-</em></div>
+                <div><i class="fa-solid fa-truck-fast"></i><small>Slot Pengantaran</small><b class="green" id="slot">-</b></div>
+              </div>
+            </section>
+
+            <section class="card st-card">
+              <header class="items-head"><h2><i class="fa-solid fa-utensils"></i> Rincian Cemilan Pesanan</h2><span class="chip gray" id="portions">0 Porsi Total</span></header>
+              <div id="items"></div>
+              <div class="pay-row" id="payRow">
+                <span class="pay-ico"><i class="fa-solid fa-receipt"></i></span>
+                <div><b>Status Pembayaran</b><div id="payText">-</div></div>
+                <span class="badge" id="payBadge">-</span>
+              </div>
+            </section>
+          </div>
+
+          <aside class="st-right">
+            <section class="card st-card">
+              <h2 class="sum-title">Ringkasan Biaya</h2>
+              <div class="row"><span id="subLabel">Subtotal Cemilan</span><b id="subtotal">Rp0</b></div>
+              <div class="row"><span>Ongkir Slot Drop</span><b id="shipping">Rp0</b></div>
+              <div class="row"><span class="green"><i class="fa-solid fa-tag"></i> Diskon Pre-Order</span><b class="green" id="discount">-Rp0</b></div>
+              <div class="row total"><span>Total Bayar</span><b id="total">Rp0</b></div>
+
+              <a class="btn-wa big" id="waBtn" href="#" target="_blank" rel="noopener"><i class="fa-regular fa-message"></i> Hubungi Admin via WhatsApp</a>
+              <a class="btn-soft" href="index.html"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu Utama</a>
+              <p class="foot" id="adminHours"></p>
+            </section>
+            <section class="card st-mini">
+              <span class="pay-ico"><i class="fa-solid fa-certificate"></i></span>
+              <div><b>Higienis &amp; Selalu Fresh</b><p>Aci digoreng mendadak sebelum diantar kurir agar tetap renyah di luar dan kenyal di dalam!</p></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer class="st-bar">
+      <span><i class="fa-regular fa-clock"></i> Fresh Daily Pre-Order</span>
+      <span><i class="fa-solid fa-motorcycle"></i> Pengiriman Tepat Waktu</span>
+      <span><i class="fa-regular fa-thumbs-up"></i> Bahan Alami &amp; Halal</span>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/status.js"></script>
+  </body>
+</html>

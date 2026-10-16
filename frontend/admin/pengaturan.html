@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../css/fonts.css"><link rel="stylesheet" href="../assets/vendor/fa/all.min.css"><link rel="stylesheet" href="../css/admin.css"><title>Pengaturan · ACICU Admin</title></head>
+<body class="admin"><div class="shell"><aside class="sidebar" id="app-sidebar"></aside><div class="main"><header class="topbar" id="app-topbar"></header><main class="content">
+<div class="page-head"><div class="grow"><h1 class="title">Pengaturan</h1><p class="sub">Semua perubahan langsung tampil di landing page dan halaman checkout.</p></div></div>
+<div class="tabs" id="tabs"><button class="chip on" data-tab="toko">Toko &amp; Pengiriman</button><button class="chip" data-tab="bayar">Pembayaran &amp; Kontak</button><button class="chip" data-tab="akun">Akun Tim</button></div>
+<form id="setForm" novalidate>
+<section data-pane="toko">
+<div class="card set-card"><h2>Status Pre-Order</h2><p class="desc">Tutup toko saat dapur penuh atau libur. Pelanggan tidak bisa checkout saat ditutup.</p>
+<label class="check" style="margin-bottom:14px"><span class="switch"><input type="checkbox" id="store_open"><span></span></span> <span id="storeLbl">Pre-order dibuka</span></label>
+<div class="field"><label for="closed_message">Pesan saat ditutup</label><input id="closed_message" maxlength="200"></div>
+<div class="field"><label for="batch_label">Label batch</label><input id="batch_label" maxlength="60" placeholder="contoh: Batch 1 - Oktober"></div></div>
+<div class="card set-card"><h2>Jam Pengiriman</h2><p class="desc">Pelanggan memilih salah satu jam ini. Default tiap jam, 06:00 sampai 22:00.</p>
+<div class="slot-admin" id="slotList"></div>
+<div class="slot-tools"><input type="time" id="slotNew"><button type="button" class="btn sm" id="slotAdd"><i class="fa-solid fa-plus"></i> Tambah jam</button><button type="button" class="btn sm" id="slotHourly">Isi tiap jam 06:00-22:00</button></div></div>
+<div class="card set-card"><h2>Aturan Pesanan</h2><div class="grid2">
+<div class="field"><label for="shipping_fee">Ongkos kirim (Rp)</label><input id="shipping_fee" type="number" min="0" step="500"></div>
+<div class="field"><label for="order_cutoff_minutes">Batas pesan sebelum jam kirim (menit)</label><input id="order_cutoff_minutes" type="number" min="0"></div>
+<div class="field"><label for="max_advance_days">Maksimal pesan di muka (hari)</label><input id="max_advance_days" type="number" min="1" max="90"></div>
+<div class="field"><label for="payment_ttl_minutes">Batas waktu bayar (menit)</label><input id="payment_ttl_minutes" type="number" min="10"></div></div></div>
+</section>
+<section data-pane="bayar" hidden>
+<div class="card set-card"><h2>Rekening &amp; QRIS</h2><p class="desc">Ditampilkan di halaman pembayaran pelanggan. Ganti data contoh dengan data asli.</p><div class="grid2">
+<div class="field"><label for="bank_name">Nama bank</label><input id="bank_name" maxlength="30"></div>
+<div class="field"><label for="bank_account">Nomor rekening</label><input id="bank_account" maxlength="40"></div>
+<div class="field"><label for="bank_holder">Atas nama</label><input id="bank_holder" maxlength="80"></div></div>
+<div class="lbl" style="margin:8px 0">Gambar QRIS</div><img class="qris-prev" id="qrisPrev" alt="" hidden>
+<div class="slot-tools" style="margin-top:10px"><input type="file" id="qris" accept="image/png,image/jpeg,image/webp" style="width:auto"><button type="button" class="btn sm danger" id="qrisRemove">Hapus QRIS</button></div></div>
+<div class="card set-card"><h2>Integrasi Otomatis</h2><p class="desc">Status ini hanya-baca. Pengaturannya ada di file <code>backend/.env</code> (lihat PANDUAN_ADMIN.md).</p>
+<div class="grid2"><div class="field"><label>Pesan WhatsApp otomatis</label><div><span class="pill tersedia" id="intWa">-</span> <span class="hint" id="intWaHint"></span></div></div>
+<div class="field"><label>Pembayaran QRIS</label><div><span class="pill tersedia" id="intPay">-</span> <span class="hint" id="intPayHint"></span></div></div></div>
+<div class="slot-tools"><input type="text" id="testPhone" placeholder="08xxxxxxxxxx" style="width:170px"><button type="button" class="btn sm" id="testWa"><i class="fa-brands fa-whatsapp"></i> Kirim pesan uji</button></div></div>
+<div class="card set-card"><h2>Kontak &amp; Sosial Media</h2><div class="grid2">
+<div class="field"><label for="whatsapp">WhatsApp admin</label><input id="whatsapp" placeholder="08xxxxxxxxxx"><span class="hint">Boleh diawali 08 atau 62.</span></div>
+<div class="field"><label for="whatsapp_display">Tampilan nomor</label><input id="whatsapp_display" maxlength="20"></div>
+<div class="field"><label for="instagram">Instagram</label><input id="instagram" maxlength="40"></div>
+<div class="field"><label for="tiktok">TikTok</label><input id="tiktok" maxlength="40"></div>
+<div class="field"><label for="admin_hours">Jam layanan admin</label><input id="admin_hours" maxlength="40"></div></div></div>
+</section>
+<div class="alert hidden" id="setErr"></div>
+<div class="sticky-save" id="saveBar"><div class="box"><span class="sub">Perubahan belum disimpan?</span><button class="btn primary" type="submit" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan</button></div></div>
+</form>
+<section data-pane="akun" hidden>
+<div class="card set-card"><div class="page-head" style="margin:0"><div class="grow"><h2>Akun Tim</h2><p class="desc">Owner bisa melihat laporan &amp; pengaturan. Admin hanya mengelola pesanan dan produk.</p></div><button class="btn primary" id="userAdd"><i class="fa-solid fa-user-plus"></i> Tambah Akun</button></div>
+<div class="table-wrap" style="box-shadow:none"><table style="min-width:640px"><thead><tr><th>Nama</th><th>Username</th><th>Peran</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="userRows"></tbody></table></div></div>
+<div class="card set-card"><h2>Ganti Kata Sandi Saya</h2><div id="pwErr" class="alert hidden"></div><form id="pwForm" class="grid2">
+<div class="field"><label>Sandi saat ini</label><input type="password" name="current_password" autocomplete="current-password"></div><div></div>
+<div class="field"><label>Sandi baru</label><input type="password" name="password" autocomplete="new-password"><span class="hint">Minimal 10 karakter, huruf dan angka.</span></div>
+<div class="field"><label>Ulangi sandi baru</label><input type="password" name="password_confirmation" autocomplete="new-password"></div>
+<div><button class="btn primary" type="submit">Ganti Sandi</button></div></form></div>
+</section>
+<div id="modalHost"></div>
+</main></div></div><script src="../js/config.js"></script><script src="../js/common.js"></script><script src="../js/api.js"></script><script src="../js/admin/admin.js"></script><script src="../js/admin/pengaturan.js"></script></body></html>

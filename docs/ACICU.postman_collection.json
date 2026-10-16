@@ -1,0 +1,734 @@
+{
+ "info": {
+  "name": "ACICU API",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "variable": [
+  {
+   "key": "base_url",
+   "value": "http://localhost:8000/api"
+  },
+  {
+   "key": "token",
+   "value": ""
+  }
+ ],
+ "item": [
+  {
+   "name": "Publik",
+   "item": [
+    {
+     "name": "Config",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/config",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "config"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Menu + kuota",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/products?date=2026-10-17",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "products"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Buat pesanan",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Siti\",\n  \"whatsapp\": \"081234567890\",\n  \"address\": \"Jl. Contoh No. 1, Pekanbaru\",\n  \"delivery_date\": \"2026-10-17\",\n  \"delivery_time\": \"11:00\",\n  \"notes\": null,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"qty\": 2\n    }\n  ]\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Status pesanan",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders/TOKEN",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders",
+        "TOKEN"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Saya sudah bayar",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders/TOKEN/paid",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders",
+        "TOKEN",
+        "paid"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Simulasi bayar (driver mock)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders/TOKEN/simulate-pay",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders",
+        "TOKEN",
+        "simulate-pay"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Admin",
+   "item": [
+    {
+     "name": "Login",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/login",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "login"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"login\": \"owner\",\n  \"password\": \"SANDI\",\n  \"remember\": false\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "exec": [
+         "pm.collectionVariables.set('token', pm.response.json().data.token);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Me",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/me",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "me"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Ganti sandi",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/me/password",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "me",
+        "password"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"current_password\": \"\",\n  \"password\": \"\",\n  \"password_confirmation\": \"\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Dashboard",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/dashboard",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "dashboard"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Produk",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/products",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "products"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Ubah stok cepat",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/products/1/stock",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "products",
+        "1",
+        "stock"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"daily_quota\": 40,\n  \"is_active\": true\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Pesanan",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders?status=menunggu_konfirmasi",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Detail pesanan",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/1",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "1"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Konfirmasi bayar",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/1/validate",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "1",
+        "validate"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"payment_method\": \"QRIS\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Tolak pesanan",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/1/reject",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "1",
+        "reject"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"reason\": \"Pembayaran tidak ditemukan\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Tandai selesai",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/1/status",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "1",
+        "status"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"status\": \"selesai\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Laporan (owner)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/reports?from=2026-10-01&to=2026-10-31",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "reports"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Pengaturan (owner)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/settings",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "settings"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Ubah pengaturan (owner)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/settings",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "settings"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"store_open\": true,\n  \"shipping_fee\": 5000,\n  \"delivery_slots\": \"06:00,07:00,08:00\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Daftar akun (owner)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Tambah akun (owner)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Admin Baru\",\n  \"username\": \"adminbaru\",\n  \"email\": \"baru@acicu.test\",\n  \"role\": \"admin\",\n  \"password\": \"Sandi12345abc\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "Logout",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/logout",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "logout"
+       ]
+      }
+     }
+    },
+    {
+     "name": "Kirim pesan WA uji (owner)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/settings/test-whatsapp",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "settings",
+        "test-whatsapp"
+       ]
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"phone\": \"081234567890\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

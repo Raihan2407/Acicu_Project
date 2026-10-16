@@ -1,0 +1,86 @@
+/* =========================
+   Dasar + navbar yang dipakai SEMUA halaman pelanggan.
+   Ukuran memakai px agar sama di landing maupun checkout.
+========================= */
+*,*::before,*::after{ box-sizing:border-box; }
+*{ margin:0; padding:0; }
+:root{
+  --pink:#FF5C8A;
+  --pink-soft:#FF9DB5;
+  --pink-deep:#B3114B;
+  --pink-bg:#F2BECD;
+  --pink-ring:#FBD9E3;
+  --gray-card:#EDEDED;
+  --ink:#2B1F25;
+  --nav-h:92px;
+}
+html{ scroll-behavior:smooth; scroll-padding-top:calc(var(--nav-h) + 8px); }
+body{ font-family:'Poppins',sans-serif; background:var(--pink-bg); color:var(--ink); overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+img{ max-width:100%; display:block; }
+[hidden]{ display:none !important; }
+a{ color:inherit; }
+button{ font-family:inherit; }
+
+/* ---------- NAVBAR (menempel di atas saat scroll) ---------- */
+#siteHeader{ position:sticky; top:0; z-index:900; }
+.navbar{
+  position:relative;
+  height:var(--nav-h);
+  background:#fff;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 clamp(16px,4.8vw,70px);
+  transition:box-shadow .25s;
+}
+.navbar.scrolled{ box-shadow:0 6px 22px rgba(179,17,75,.14); }
+.nav-left{ display:flex; align-items:center; gap:14px; text-decoration:none; min-width:0; }
+.nav-left .logo{ width:74px; height:74px; border-radius:50%; object-fit:cover; flex:none; }
+.logo-text h1{ font:600 26px/1.1 'Poppins',sans-serif; color:var(--pink); letter-spacing:.3px; }
+.logo-text p{ font:500 11px/1.2 'Poppins',sans-serif; color:#FF8DB2; margin-top:2px; }
+
+.nav-menu{ display:flex; align-items:center; gap:6px; margin-left:auto; margin-right:clamp(12px,2.5vw,36px); }
+.nav-link{
+  text-decoration:none; color:var(--pink);
+  font:600 18px/1 'Poppins',sans-serif;
+  padding:10px 22px; border-radius:999px;
+  transition:background .2s,color .2s;
+}
+.nav-link:hover,.nav-link.active{ background:var(--pink); color:#fff; }
+.separator{ width:1px; height:34px; background:#FFB4C9; margin:0 6px; }
+
+.nav-right{ display:flex; align-items:center; gap:10px; }
+.cart-btn{
+  position:relative; width:46px; height:46px; display:grid; place-items:center;
+  border:none; background:transparent; color:var(--pink); cursor:pointer; border-radius:50%;
+  transition:background .2s;
+}
+.cart-btn:hover{ background:#FFF0F4; transform:none; }
+.cart-btn svg{ width:30px; height:30px; }
+.cart-badge{
+  position:absolute; top:-2px; right:-4px; min-width:20px; height:20px; padding:0 5px;
+  border-radius:999px; background:var(--pink-deep); color:#fff;
+  font:600 12px/20px 'Poppins',sans-serif; text-align:center;
+}
+.hamburger{ display:none; flex-direction:column; gap:5px; width:44px; height:44px; justify-content:center; align-items:center; border:none; background:transparent; cursor:pointer; }
+.hamburger span{ width:26px; height:3px; background:var(--pink); border-radius:20px; transition:.25s; }
+
+/* ---------- banner toko tutup ---------- */
+.closed-banner{ background:var(--pink-deep); color:#fff; text-align:center; padding:10px 16px; font:600 14px/1.4 'Poppins',sans-serif; position:sticky; top:var(--nav-h); z-index:850; }
+.closed-banner i{ margin-right:8px; }
+
+@media (max-width:860px){
+  :root{ --nav-h:68px; }
+  .nav-menu{ margin:0; }
+  .nav-left .logo{ width:50px; height:50px; }
+  .logo-text h1{ font-size:21px; }
+  .logo-text p{ font-size:10px; }
+  .hamburger{ display:flex; }
+  .nav-menu{
+    position:absolute; top:var(--nav-h); right:12px; width:min(250px,calc(100vw - 24px));
+    flex-direction:column; align-items:stretch; gap:6px; padding:16px;
+    background:#fff; border-radius:20px; box-shadow:0 18px 40px rgba(179,17,75,.22);
+    opacity:0; transform:translateY(-8px); pointer-events:none; transition:.2s;
+  }
+  .nav-menu.active{ opacity:1; transform:none; pointer-events:auto; }
+  .nav-link{ text-align:center; font-size:16px; padding:12px; }
+  .separator{ display:none; }
+}

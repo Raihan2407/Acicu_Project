@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout Pre-Order - ACICU</title>
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/vendor/fa/all.min.css" />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/checkout.css" />
+  </head>
+  <body class="page-checkout">
+    <div id="siteHeader"></div>
+
+    <main class="co-wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <a href="index.html#menu">Keranjang</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span class="current">Formulir Checkout PO</span>
+      </nav>
+
+      <section class="co-hero card">
+        <h1>Formulir Pre-Order ACICU</h1>
+        <p>Lengkapi data diri dan jadwal pengiriman Anda. Cemilan aci kenyal gurih dibuat fresh sesaat sebelum jadwal pengantaran.</p>
+      </section>
+
+      <div class="co-empty card" id="emptyState" hidden>
+        <i class="fa-solid fa-bag-shopping"></i>
+        <h2>Keranjang masih kosong</h2>
+        <p>Pilih menu dulu, lalu kembali ke halaman ini untuk checkout.</p>
+        <a class="btn-pink" href="index.html#menu">Lihat Menu</a>
+      </div>
+
+      <form class="co-grid" id="checkoutForm" novalidate hidden>
+        <!-- ===== kiri: data penerima ===== -->
+        <section class="card form-card">
+          <header class="card-head">
+            <span class="icon-bubble"><i class="fa-regular fa-user"></i></span>
+            <div>
+              <h2>Data Penerima &amp; Kontak</h2>
+              <p>Pastikan kontak dapat dihubungi untuk konfirmasi drop pesanan.</p>
+            </div>
+          </header>
+
+          <div class="alert-box" id="formAlert" role="alert" hidden></div>
+
+          <div class="field">
+            <label for="name">Nama Lengkap <b>*</b></label>
+            <div class="input"><i class="fa-regular fa-id-card"></i><input id="name" name="name" type="text" maxlength="100" placeholder="Contoh: Siti Rahma" autocomplete="name" /></div>
+            <small class="err" data-for="name"></small>
+          </div>
+
+          <div class="field">
+            <label for="whatsapp">Nomor WhatsApp Aktif <b>*</b></label>
+            <div class="input"><i class="fa-brands fa-whatsapp wa"></i><input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" maxlength="20" placeholder="Contoh: 0812-3456-7890" autocomplete="tel" /></div>
+            <small class="hint">Notifikasi update proses goreng &amp; resi kurir akan dikirim via WA.</small>
+            <small class="err" data-for="whatsapp"></small>
+          </div>
+
+          <div class="field">
+            <label for="address">Alamat Lengkap Pengiriman <b>*</b></label>
+            <textarea id="address" name="address" rows="4" maxlength="500" placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, dan patokan (misal: Rumah pagar hitam samping Indomaret)" autocomplete="street-address"></textarea>
+            <small class="err" data-for="address"></small>
+          </div>
+
+          <div class="field">
+            <label for="delivery_date">Tanggal Pre-Order <b>*</b></label>
+            <div class="input"><i class="fa-regular fa-calendar"></i><input id="delivery_date" name="delivery_date" type="date" /></div>
+            <small class="err" data-for="delivery_date"></small>
+          </div>
+
+          <div class="field">
+            <label id="slotLabel">Jam Pengiriman <b>*</b> <span class="side-hint" id="slotHint"></span></label>
+            <input type="hidden" id="delivery_time" name="delivery_time" />
+            <div class="slot-grid" id="slotGrid" role="radiogroup" aria-labelledby="slotLabel"><span class="slot-empty">Memuat jam kirim...</span></div>
+            <small class="err" data-for="delivery_time"></small>
+          </div>
+
+          <div class="field">
+            <label for="notes">Catatan Khusus (Opsional) <span class="side-hint">Bumbu terpisah, dll</span></label>
+            <div class="input"><input id="notes" name="notes" type="text" maxlength="300" placeholder="Contoh: Sambal dipisah, extra pedas gurih jeruk" /></div>
+            <small class="err" data-for="notes"></small>
+          </div>
+        </section>
+
+        <!-- ===== kanan: ringkasan ===== -->
+        <aside class="side">
+          <section class="card sum-card">
+            <header class="sum-head">
+              <h2><i class="fa-solid fa-receipt"></i> Ringkasan Pesanan</h2>
+              <span class="chip" id="menuCount">0 Menu</span>
+            </header>
+
+            <div id="sumItems"></div>
+
+            <div class="totals">
+              <div><span>Subtotal Pesanan</span><strong id="sumSubtotal">Rp0</strong></div>
+              <div><span>Ongkir Flat Promo PO <i class="fa-regular fa-circle-question" title="Ongkos kirim tetap per pesanan"></i></span><strong class="green" id="sumShipping">Rp0</strong></div>
+              <div class="grand"><span>Total Pembayaran</span><strong id="sumTotal">Rp0</strong></div>
+            </div>
+
+            <div class="mini-badges">
+              <span><i class="fa-regular fa-circle-check"></i> 100% Halal &amp; Higienis</span>
+              <span><i class="fa-solid fa-utensils"></i> Freshly Fried Drop</span>
+            </div>
+
+            <button class="btn-pink" id="submitBtn" type="submit">Lanjut ke Pembayaran <i class="fa-solid fa-arrow-right"></i></button>
+            <p class="consult">Ingin konsultasi pesanan partai besar / catering?<br />
+              <a id="consultWa" href="#" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Hubungi Admin Dapur ACICU</a></p>
+          </section>
+
+          <section class="guarantee">
+            <strong>Jaminan Dapur Bungcu</strong>
+            <p>Bahan tapioka murni tanpa pengawet sintetik. Digoreng dengan minyak berkualitas prima!</p>
+          </section>
+        </aside>
+      </form>
+    </main>
+
+    <div id="siteFooter"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/checkout.js"></script>
+  </body>
+</html>

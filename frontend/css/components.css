@@ -1,0 +1,161 @@
+/* =========================
+   Komponen bersama halaman pelanggan: tombol, keranjang, toast
+========================= */
+:root{
+  --pink:#FF5C8A;
+  --pink-soft:#FF9DB5;
+  --pink-deep:#B3114B;      /* teks/aksen pink tua */
+  --pink-bg:#F2BECD;        /* latar halaman checkout */
+  --pink-tint:#F8EDF1;
+  --green:#0E7A3B;
+  --wa:#25D366;
+  --ink:#2B1F25;
+}
+
+a{ -webkit-tap-highlight-color:transparent; }
+
+/* ---------- navbar tambahan ---------- */
+.nav-left{ text-decoration:none; }
+.nav-right{ display:flex; align-items:center; gap:18px; }
+
+.cart-btn{
+  position:relative;
+  width:46px; height:46px;
+  display:grid; place-items:center;
+  border:none; background:transparent;
+  color:var(--pink); font-size:2.4rem;
+  cursor:pointer;
+}
+.cart-btn:hover{ transform:scale(1.08); }
+.cart-badge{
+  position:absolute; top:-6px; right:-8px;
+  min-width:22px; height:22px; padding:0 6px;
+  border-radius:999px; background:var(--pink-deep); color:#fff;
+  font:600 1.15rem/22px 'Poppins',sans-serif; text-align:center;
+}
+
+/* ---------- tombol ---------- */
+.btn-pink{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:14px 18px;
+  border:none; border-radius:999px;
+  background:var(--pink); color:#fff;
+  font:600 1.5rem 'Quicksand','Poppins',sans-serif;
+  text-decoration:none; cursor:pointer;
+  box-shadow:0 5px 0 #c9335f;
+  transition:transform .15s, box-shadow .15s, opacity .2s;
+}
+.btn-pink:hover{ transform:translateY(-1px); }
+.btn-pink:active{ transform:translateY(3px); box-shadow:0 2px 0 #c9335f; }
+.btn-pink.disabled,.btn-pink:disabled{ opacity:.55; pointer-events:none; }
+
+.btn-wa-dark{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:11px 14px; margin-top:12px;
+  border:none; border-radius:999px;
+  background:#0A6B31; color:#fff;
+  font:700 1.2rem 'Nunito',sans-serif; cursor:pointer;
+  box-shadow:0 4px 0 #064a22;
+}
+.btn-wa-dark:disabled{ opacity:.5; cursor:not-allowed; }
+
+/* ---------- laci keranjang ---------- */
+.cart-drawer{
+  position:fixed; z-index:1200;
+  top:var(--nav-h, 125px); right:0; bottom:0;
+  width:min(380px, 100vw);
+  display:flex; flex-direction:column;
+  background:#fff;
+  box-shadow:-8px 0 30px rgba(120,30,60,.18);
+  transform:translateX(105%);
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+  font-family:'Nunito',sans-serif;
+  font-size:1.4rem;
+  color:var(--ink);
+}
+.cart-drawer.open{ transform:none; }
+
+.cart-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:1px solid #f3dfe6;
+  font-family:'Quicksand',sans-serif; font-size:1.5rem;
+}
+.cart-close{ border:none; background:#f6e8ed; width:32px; height:32px; border-radius:50%; color:var(--pink-deep); cursor:pointer; }
+
+.cart-list{ flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
+
+.cart-item{
+  position:relative;
+  display:grid; grid-template-columns:62px 1fr auto; grid-template-rows:auto auto;
+  gap:2px 12px; align-items:center;
+  padding:10px; border-radius:12px; background:#f8f1f4;
+}
+.cart-item img{ grid-row:1 / span 2; width:62px; height:62px; object-fit:cover; border-radius:10px; background:#fff; }
+.cart-item-name{ font-weight:800; font-size:1.5rem; }
+.cart-item-price{ font-size:1.1rem; color:#6a5560; }
+.cart-item-total{ font-weight:800; color:var(--pink-deep); font-size:1.25rem; }
+.cart-del{ grid-column:3; grid-row:1; justify-self:end; border:none; background:none; color:var(--pink-deep); cursor:pointer; font-size:1.3rem; }
+.qty{ grid-column:3; grid-row:2; display:flex; align-items:center; gap:2px; background:#fff; border-radius:999px; padding:2px; }
+.qty button{ width:26px; height:26px; border:none; border-radius:50%; background:transparent; color:var(--pink-deep); font:800 1.5rem/1 'Nunito',sans-serif; cursor:pointer; }
+.qty button:hover{ background:#fde6ee; }
+.qty span{ min-width:22px; text-align:center; font-weight:800; font-size:1.25rem; }
+
+.cart-empty{ margin:auto; text-align:center; color:#8d7681; padding:30px 10px; }
+.cart-empty i{ font-size:4rem; color:var(--pink-soft); margin-bottom:10px; }
+.cart-empty p{ font-weight:800; font-size:1.5rem; color:var(--ink); }
+
+.cart-foot{ padding:14px 16px 18px; background:#fbf6f8; border-top:1px solid #f3dfe6; }
+.cart-sub{ display:flex; justify-content:space-between; align-items:baseline; font-size:1.25rem; }
+.cart-sub strong{ font-size:1.9rem; color:var(--pink-deep); font-family:'Quicksand',sans-serif; }
+.cart-note{ margin:4px 0 12px; font-size:1rem; font-weight:700; color:#5b4650; }
+.cart-checkout{ font-size:1.4rem; padding:12px 16px; }
+
+/* ---------- toast ---------- */
+.toast-host{ position:fixed; z-index:3000; left:50%; bottom:24px; transform:translateX(-50%); display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
+.toast{
+  padding:12px 20px; border-radius:999px; background:#2B1F25; color:#fff;
+  font:700 1.35rem 'Nunito',sans-serif; box-shadow:0 8px 24px rgba(0,0,0,.25);
+  opacity:0; transform:translateY(10px); transition:.3s;
+}
+.toast.show{ opacity:1; transform:none; }
+.toast-success{ background:#0E7A3B; }
+.toast-error{ background:#B3114B; }
+
+/* ---------- landing: tombol tambah ke keranjang ---------- */
+.price-wrap{
+  position:absolute; left:50%; bottom:30px; transform:translateX(-50%);
+  z-index:20; display:flex; align-items:center; gap:16px;
+}
+.price-wrap .price{ position:static; transform:none; }
+.add-cart{
+  display:flex; align-items:center; gap:10px;
+  height:70px; padding:0 26px; border:none; border-radius:999px;
+  background:#fff; color:var(--pink);
+  font:700 1.8rem 'Quicksand','Poppins',sans-serif; cursor:pointer;
+  box-shadow:0 6px 0 rgba(0,0,0,.12);
+  transition:transform .15s;
+}
+.add-cart:hover{ transform:translateY(-2px); }
+.add-cart:disabled{ opacity:.6; cursor:not-allowed; transform:none; }
+.menu-stock{
+  position:absolute; left:50%; bottom:-4px; transform:translate(-50%, 100%);
+  font:700 1.3rem 'Nunito',sans-serif; color:var(--pink-deep); white-space:nowrap;
+}
+.menu-state{
+  position:relative; z-index:40; text-align:center; padding:120px 20px;
+  font:700 1.8rem 'Nunito',sans-serif; color:#fff;
+}
+.menu-state button{ margin-top:14px; padding:10px 22px; border:none; border-radius:999px; background:#fff; color:var(--pink); font:700 1.4rem 'Nunito',sans-serif; cursor:pointer; }
+
+@media(max-width:768px){
+  :root{ --nav-h:90px; }
+  .cart-btn{ font-size:2rem; width:38px; height:38px; }
+  .nav-right{ gap:10px; }
+  .price-wrap{ bottom:120px; flex-direction:column; gap:8px; }
+  .price-wrap .price{ width:180px; height:58px; font-size:2rem; }
+  .add-cart{ height:48px; font-size:1.4rem; padding:0 20px; }
+  .menu-stock{ position:static; transform:none; text-align:center; }
+}
+@media(max-width:480px){
+  .price-wrap .price{ width:160px; height:52px; font-size:1.8rem; }
+}

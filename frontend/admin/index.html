@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../css/fonts.css"><link rel="stylesheet" href="../assets/vendor/fa/all.min.css"><link rel="stylesheet" href="../css/admin.css"><title>Dashboard · ACICU Admin</title></head>
+<body class="admin"><div class="shell"><aside class="sidebar" id="app-sidebar"></aside><div class="main"><header class="topbar" id="app-topbar"></header><main class="content">
+<div class="page-head"><div class="grow"><div class="eyebrow"><span id="eyDate"></span> <span class="sync"><span class="live-dot"></span>Sinkron otomatis</span></div>
+<h1 class="title" id="hello">Halo!</h1><p class="sub">Pantau pesanan <span class="place">Dapur Pusat ACICU</span> secara realtime.</p></div>
+<div class="head-tools"><div class="pill-box batch"><span class="ico"><i class="fa-solid fa-box-open"></i></span><span><small>Batch Aktif</small><span id="batchLabel">-</span></span></div></div></div>
+<section class="cards" id="cards"></section>
+<section class="card" style="margin-bottom:22px"><div class="chart-head"><div><h2>Tren Pesanan 7 Hari</h2><p class="desc">Jumlah porsi atau nominal pesanan per hari.</p></div><div class="seg" id="metricSeg"><button data-m="portions" class="on">Porsi</button><button data-m="revenue">Nominal</button></div></div><div id="chart"></div><div class="insight" id="insight"></div></section>
+<section class="card"><div class="recent-head"><h2>Aktivitas Terbaru</h2><a href="pesanan.html">Lihat semua <i class="fa-solid fa-arrow-right"></i></a></div><ul class="recent" id="recent"></ul></section>
+</main></div></div><script src="../js/config.js"></script><script src="../js/common.js"></script><script src="../js/api.js"></script><script src="../js/admin/admin.js"></script><script src="../js/admin/dashboard.js"></script></body></html>
