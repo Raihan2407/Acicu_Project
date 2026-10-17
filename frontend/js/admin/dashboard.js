@@ -7,14 +7,15 @@
 
   function renderCards() {
     var c = data.cards, ch = c.orders_today.change_percent, chTxt;
-    if (ch === null) chTxt = '<span class="tag">Belum ada pembanding</span>';
+    var total7 = data.trend.reduce(function (n, d) { return n + d.orders; }, 0);
+    if (ch === null) chTxt = '<span>Hari ini</span>';
     else chTxt = '<span class="tag ' + (ch >= 0 ? 'up' : 'down') + '">' + (ch >= 0 ? '▲ ' : '▼ ') + Math.abs(ch) + '%</span> dari kemarin';
     var top = c.top_product.name;
     document.getElementById('cards').innerHTML =
-      card('fa-bag-shopping', '', 'Pesanan Hari Ini', c.orders_today.count + '<small>Pesanan</small>', chTxt) +
-      card('fa-fire-burner', 'hot', 'Perlu Diproses', c.to_process.count + '<small>Antrean</small>', 'Dikirim hari ini, belum selesai') +
-      card('fa-bowl-food', '', 'Menu Terlaris', top ? '<span style="font-size:2.6rem">' + Util.esc(top) + '</span>' : '<span style="font-size:2.6rem">-</span>', '<span>' + c.top_product.portions + ' porsi (7 hari)</span>' + (top ? '<span class="tag fav">Favorit</span>' : '')) +
-      card('fa-wallet', 'mint', 'Pendapatan', '<span style="font-size:3.4rem">' + Util.rupiah(c.revenue.amount) + '</span>', c.revenue.period + ' · hanya yang lunas');
+      card('fa-receipt', '', 'Total Pesanan', total7 + '<small>PO</small>', '7 hari terakhir') +
+      card('fa-bag-shopping', 'hot', 'Pesanan Hari Ini', c.orders_today.count + '<small>PO</small>', chTxt) +
+      card('fa-bowl-food', '', 'Produk Terlaris', top ? '<span style="font-size:2.6rem">' + Util.esc(top) + '</span>' : '<span style="font-size:2.6rem">-</span>', '<span>' + c.top_product.portions + ' porsi terjual</span>' + (top ? '<span class="tag fav">Favorit</span>' : '')) +
+      card('fa-wallet', 'mint', 'Total Pendapatan', '<span style="font-size:3.4rem">' + Util.rupiah(c.revenue.amount) + '</span>', 'Pembayaran lunas, ' + c.revenue.period);
   }
 
   function renderChart() {
@@ -48,16 +49,16 @@
 
   function renderInsight() {
     var i = data.insight, none = !data.trend.some(function (d) { return d.orders > 0; });
-    document.getElementById('insight').innerHTML = none ? '<i class="fa-solid fa-lightbulb"></i> Belum ada pesanan 7 hari terakhir. Grafik akan terisi otomatis saat pesanan masuk.' :
-      '<i class="fa-solid fa-lightbulb"></i> Pesanan paling ramai pada <b>' + Util.esc(i.peak_labels.join(', ')) + '</b><span class="avg">Rata-rata <b>' + i.average_orders + '</b> pesanan/hari</span>';
+    document.getElementById('insight').innerHTML = none ? '<i class="fa-solid fa-lightbulb"></i> Belum ada pesanan dalam 7 hari terakhir.' :
+      '<i class="fa-solid fa-lightbulb"></i> Pesanan paling ramai pada <b>' + Util.esc(i.peak_labels.join(', ')) + '</b><span class="avg">Rata-rata: <b>' + i.average_orders + ' PO</b> / hari</span>';
   }
 
   function renderRecent() {
     var el = document.getElementById('recent');
-    if (!data.recent.length) { el.style.display = 'block'; el.innerHTML = '<li class="empty-state" style="display:block;background:none"><i class="fa-solid fa-inbox"></i><b>Belum ada pesanan</b>Pesanan dari halaman checkout akan muncul di sini secara otomatis.</li>'; return; }
+    if (!data.recent.length) { el.style.display = 'block'; el.innerHTML = '<li class="empty-state" style="display:block;background:none"><i class="fa-solid fa-inbox"></i><b>Belum ada pesanan</b></li>'; return; }
     el.style.display = '';
     el.innerHTML = data.recent.map(function (r) {
-      return '<li><span class="no">' + Util.esc(r.po_number) + '</span><div class="txt"><b>' + Util.esc(r.title) + '</b><small>' + Util.esc(r.customer_name) + ' · ' + Util.dateTimeShort(r.ordered_at) + '</small></div><span class="pill ' + r.status + '">' + (Util.STATUS_LABEL[r.status] || r.status) + '</span></li>';
+      return '<li><span class="no">#' + Util.esc(r.po_number.replace(/^PO-/, '')) + '</span><div class="txt"><b>' + Util.esc(r.title) + '</b><small>' + Util.esc(r.customer_name) + ' · ' + Util.dateTimeShort(r.ordered_at) + '</small></div><span class="pill ' + r.status + '">' + (Util.STATUS_LABEL[r.status] || r.status) + '</span></li>';
     }).join('');
   }
 
@@ -66,7 +67,7 @@
       data = (await Api.get('admin/dashboard', { auth: true })).data;
     } catch (e) { if (first) Util.toast(e.message, 'error'); return; }
     document.getElementById('batchLabel').textContent = data.batch_label || '-';
-    document.getElementById('eyDate').textContent = Util.dateFull().toUpperCase();
+    document.getElementById('eyDate').textContent = Util.dateFull();
     document.getElementById('hello').textContent = 'Halo, ' + AdminShell.user().name + '!';
     renderCards(); renderChart(); renderInsight(); renderRecent();
   }

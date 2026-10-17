@@ -8,7 +8,7 @@
     delivery_slots: ['11:30', '15:30'],
     max_advance_days: 30,
     payment: { bank_name: 'BCA', bank_account: '-', bank_holder: '-', qris_url: null },
-    contact: { whatsapp: '6282286512274', whatsapp_display: '082286512274', instagram: 'acicu.licious', tiktok: 'acicu.licious', admin_hours: '08:00 - 19:00 WIB' },
+    contact: { whatsapp: '6282286512274', whatsapp_display: '082286512274', instagram: 'acicu.licious', tiktok: 'anekaacibungcu', admin_hours: '08:00 - 19:00 WIB' },
   };
 
   var configPromise = null;
@@ -57,7 +57,7 @@
   }
 
   function navLinks(landing) {
-    var items = [['home', 'Home'], ['menu', 'Menu'], ['sep'], ['about', 'About Us'], ['contact', 'Contact']];
+    var items = [['home', 'Home'], ['menu', 'Menu'], ['about', 'About Us'], ['contact', 'Contact']];
     return items.map(function (it) {
       if (it[0] === 'sep') return '<div class="separator"></div>';
       return landing
@@ -241,7 +241,7 @@
             '<p>Aneka Aci Bungcu khas jajanan kenyal, gurih, dan lezat.<br>Sistem drop pre-order segar langsung ke meja Anda.</p></div>' +
           '<div class="sf-center"><span class="sf-title">PESAN &amp; KONTAK KAMI</span>' +
             '<a class="sf-wa" href="' + Util.waLink(c.whatsapp) + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp: ' + Util.esc(c.whatsapp_display) + '</a>' +
-            '<div class="sf-social"><span><i class="fa-brands fa-instagram"></i> @' + Util.esc(c.instagram) + '</span><span><i class="fa-brands fa-tiktok"></i> TikTok @' + Util.esc(c.tiktok) + '</span></div></div>' +
+            '<div class="sf-social"><a href="https://www.instagram.com/' + encodeURIComponent(c.instagram) + '" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i> @' + Util.esc(c.instagram) + '</a><a href="https://www.tiktok.com/@' + encodeURIComponent(c.tiktok) + '" target="_blank" rel="noopener"><i class="fa-brands fa-tiktok"></i> @' + Util.esc(c.tiktok) + '</a></div></div>' +
           '<div class="sf-right"><span class="sf-pill"><i class="fa-solid fa-circle-check"></i> Pre-Order Freshly Made</span>' +
             '<p>&copy; ' + new Date().getFullYear() + ' Aneka Aci Bungcu (ACICU). All rights reserved.</p></div>' +
         '</footer>';

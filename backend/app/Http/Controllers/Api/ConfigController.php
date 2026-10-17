@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\PaymentGateway;
 use App\Services\Settings;
 use Illuminate\Http\JsonResponse;
 
@@ -22,6 +21,7 @@ class ConfigController extends Controller
             'order_cutoff_minutes' => (int) $s['order_cutoff_minutes'],
             'max_advance_days' => (int) $s['max_advance_days'],
             'payment_ttl_minutes' => (int) $s['payment_ttl_minutes'],
+            'require_proof' => (bool) $s['require_proof'],
             'today' => now()->toDateString(),
             'server_time' => now()->toIso8601String(),
             'batch_label' => $s['batch_label'],
@@ -29,8 +29,6 @@ class ConfigController extends Controller
                 'bank_name' => $s['bank_name'],
                 'bank_account' => $s['bank_account'],
                 'bank_holder' => $s['bank_holder'],
-                'driver' => PaymentGateway::driver(),
-                'dynamic' => PaymentGateway::isDynamic(),
                 'qris_url' => $s['qris_image'] ? asset('storage/'.ltrim($s['qris_image'], '/')) : null,
             ],
             'contact' => [

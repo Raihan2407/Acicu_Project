@@ -5,15 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
-use App\Services\PaymentGateway;
+use App\Services\OwnerNotifier;
 use App\Services\Presenter;
 use App\Services\Settings;
-use App\Services\WhatsAppNotifier;
 use Carbon\Carbon;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -124,12 +124,9 @@ class OrderController extends Controller
             return $order;
         });
 
-        PaymentGateway::charge($order);          // QRIS dinamis (bila diaktifkan)
-        WhatsAppNotifier::forOrder($order, 'created'); // pesan otomatis (gagal kirim tidak mengganggu)
-
         $order->load('items.product');
 
-        return response()->json(['data' => Presenter::publicOrder($order->fresh('items.product'))], 201);
+        return response()->json(['data' => Presenter::publicOrder($order)], 201);
     }
 
     /** GET /api/orders/{token} : status pesanan untuk pelanggan (halaman pembayaran & status). */
@@ -142,20 +139,16 @@ class OrderController extends Controller
             ->where('tracking_token', $token)
             ->firstOrFail();
 
-        if (! $order->qr_string) {
-            PaymentGateway::charge($order); // coba lagi bila pembuatan QR sebelumnya gagal
-            $order->refresh()->load('items.product');
-        }
-
         return response()->json(['data' => Presenter::publicOrder($order)]);
     }
 
     /**
-     * POST /api/orders/{token}/paid
-     * Langkah 2: pelanggan menekan "Saya Sudah Bayar" di halaman pembayaran.
-     * Pesanan masuk antrean "menunggu konfirmasi" untuk dicek admin.
+     * POST /api/orders/{token}/paid  (JSON atau multipart dengan berkas "proof")
+     * Langkah 2: pelanggan menekan "Saya Sudah Bayar" di halaman pembayaran, boleh sambil mengunggah bukti
+     * (screenshot transfer/QRIS). Bila pengaturan "require_proof" aktif, bukti wajib ada.
+     * Pesanan masuk antrean "menunggu konfirmasi" untuk divalidasi admin.
      */
-    public function markPaid(string $token): JsonResponse
+    public function markPaid(Request $request, string $token): JsonResponse
     {
         Order::expireOverdue();
 
@@ -165,36 +158,40 @@ class OrderController extends Controller
             return response()->json(['message' => 'Waktu pembayaran sudah habis dan pesanan dibatalkan. Silakan buat pesanan baru.'], 422);
         }
 
-        // Idempoten: menekan dua kali (atau setelah dikonfirmasi) tidak mengubah apa pun.
+        $request->validate([
+            'proof' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'proof.mimes' => 'Bukti harus berupa gambar JPG, PNG, atau WEBP.',
+            'proof.max' => 'Ukuran bukti maksimal 2 MB.',
+            'proof.uploaded' => 'Bukti gagal diunggah. Pastikan ukurannya maksimal 2 MB.',
+        ]);
+
+        if (Settings::get('require_proof') && ! $request->hasFile('proof') && ! $order->proof_path) {
+            throw ValidationException::withMessages(['proof' => 'Anda belum mengunggah bukti pembayaran.']);
+        }
+
+        // Bukti hanya bisa diganti selama pembayaran belum divalidasi.
+        if ($request->hasFile('proof') && in_array($order->status, [Order::STATUS_UNPAID, Order::STATUS_PENDING], true)) {
+            $old = $order->proof_path;
+            $order->proof_path = $request->file('proof')->store('proofs', 'public');
+            $order->proof_uploaded_at = now();
+            $order->save();
+
+            if ($old) {
+                Storage::disk('public')->delete($old);
+            }
+        }
+
+        // Idempoten: menekan dua kali (atau setelah dikonfirmasi) tidak mengubah status lagi.
         if ($order->status === Order::STATUS_UNPAID) {
             $order->update([
                 'status' => Order::STATUS_PENDING,
                 'payment_status' => Order::PAY_WAITING,
                 'customer_paid_at' => now(),
             ]);
+
+            OwnerNotifier::paymentClaimed($order->fresh('items'));
         }
-
-        return response()->json(['data' => Presenter::publicOrder($order->fresh('items.product'))]);
-    }
-
-    /**
-     * POST /api/orders/{token}/simulate-pay
-     * HANYA saat ACICU_PAYMENT_DRIVER=mock: meniru notifikasi "pembayaran masuk" dari penyedia pembayaran, untuk demo.
-     */
-    public function simulatePay(string $token): JsonResponse
-    {
-        if (PaymentGateway::driver() !== 'mock') {
-            return response()->json(['message' => 'Simulasi pembayaran tidak aktif.'], 404);
-        }
-
-        Order::expireOverdue();
-        $order = Order::query()->with('items.product')->where('tracking_token', $token)->firstOrFail();
-
-        if ($order->status === Order::STATUS_CANCELLED) {
-            return response()->json(['message' => 'Pesanan sudah dibatalkan karena melewati batas waktu.'], 422);
-        }
-
-        PaymentGateway::markPaid($order, 'QRIS (simulasi)');
 
         return response()->json(['data' => Presenter::publicOrder($order->fresh('items.product'))]);
     }

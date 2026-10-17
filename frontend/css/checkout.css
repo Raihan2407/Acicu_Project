@@ -182,10 +182,21 @@ textarea:focus{ border-color:var(--pink); background:#fff; }
 .field.invalid .slot-grid{ outline:2px solid #C0262D; outline-offset:4px; border-radius:14px; }
 .slot-note{ grid-column:1/-1; font:600 1.2rem 'Nunito',sans-serif; color:var(--pink-deep); }
 
-/* QRIS dinamis */
-.dyn-qr{ width:min(240px,100%); margin:10px auto; padding:10px; background:#fff; border-radius:16px; box-shadow:0 0 0 2px #FBD6E1 inset; }
-.dyn-qr svg{ display:block; width:100%; height:auto; }
-.sim-btn{ margin-top:10px; border:2px dashed var(--pink); background:#fff; color:var(--pink-deep,#B3114B); font:800 1.3rem 'Nunito',sans-serif; padding:10px 18px; border-radius:999px; cursor:pointer; }
-.sim-btn:hover{ background:#FFE6EE; }
-.auto-note{ margin:12px 0 4px; font:700 1.25rem 'Nunito',sans-serif; color:#6c5c64; text-align:center; }
-.auto-note i{ color:var(--pink); margin-right:6px; }
+/* Bukti pembayaran (mengikuti desain: kotak putus-putus, ikon unggah, tombol pink) */
+.proof{ margin-top:18px; }
+.proof-drop{ width:100%; display:flex; flex-direction:column; align-items:center; gap:6px; padding:26px 16px; background:#F7E9EE; border:2px dashed #FF8FB0; border-radius:22px; cursor:pointer; text-align:center; transition:background .15s, border-color .15s; }
+.proof-drop:hover,.proof-drop.over{ background:#FFE6EE; border-color:#FF5C8A; }
+.proof-drop:focus-visible{ outline:3px solid #FF5C8A; outline-offset:3px; }
+.proof-ico{ width:58px; height:58px; border-radius:50%; background:#FFD3E0; color:#B3114B; display:grid; place-items:center; font-size:2.4rem; }
+.proof-drop strong{ font:700 1.7rem 'Quicksand',sans-serif; color:#2B1F25; }
+.proof-drop small{ font:600 1.2rem 'Nunito',sans-serif; color:#6c5c64; }
+.proof-pick{ display:flex; align-items:center; gap:14px; padding:12px 14px; background:#F7E9EE; border-radius:18px; }
+.proof-pick img{ width:64px; height:64px; border-radius:12px; object-fit:cover; background:#fff; }
+.proof-pick div{ min-width:0; flex:1; display:flex; flex-direction:column; }
+.proof-pick b{ font:800 1.35rem 'Nunito',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.proof-pick small{ color:#6c5c64; font-weight:600; }
+.proof-x{ width:34px; height:34px; border:0; border-radius:50%; background:#fff; color:#B3114B; cursor:pointer; }
+.proof-err{ margin:8px 2px 0; color:#C0262D; font:700 1.25rem 'Nunito',sans-serif; }
+.proof-link{ color:#B3114B; font-weight:800; }
+.how{ margin-top:14px; }
+.sf-social a{ color:inherit; text-decoration:none; } .sf-social a:hover{ text-decoration:underline; }

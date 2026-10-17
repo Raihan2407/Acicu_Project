@@ -51,8 +51,8 @@ Tanpa Laravel: `node frontend/dev-mock/server.js` (API tiruan di port 8000; admi
 - Slot jam kirim hari ini otomatis nonaktif setelah lewat batas pesan (`ACICU_ORDER_CUTOFF_MINUTES`, bawaan 90 menit sebelum jam kirim); server juga menolaknya.
 - Ini polling berkala (bukan WebSocket), cukup untuk skala ini dan tanpa layanan tambahan.
 
-## QRIS dinamis & WhatsApp otomatis
-Dua fitur ini punya mode gratis bawaan (lihat `PANDUAN_ADMIN.md` bagian 7): `ACICU_PAYMENT_DRIVER=manual|mock|midtrans` dan `ACICU_WA_DRIVER=log|fonnte|off`. Mode `mock`/`log` hanya simulasi untuk demo. Setelah menarik kode baru jalankan `php artisan migrate`.
+## Pembayaran & pemberitahuan ke owner
+QRIS statis (gambar dari Pengaturan) dan transfer manual. Pelanggan boleh mengunggah bukti transfer lalu menekan "Saya Sudah Bayar"; admin memvalidasi. Pengaturan "Wajibkan unggah bukti" ada di Pengaturan, tab Pembayaran & Kontak. Owner tahu ada pembayaran baru lewat badge dan bunyi di panel admin, tombol WhatsApp pelanggan, dan Telegram opsional (lihat `PANDUAN_ADMIN.md` bagian 7).
 
 ## Dokumentasi
 - `docs/API.md`: fungsi API di proyek ini + semua endpoint. `docs/ACICU.postman_collection.json`: impor ke Postman.

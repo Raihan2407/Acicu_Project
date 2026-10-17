@@ -69,6 +69,7 @@ final class Presenter
             'payment_method' => $order->payment_method,
             'payment_deadline' => $order->payment_deadline?->toIso8601String(),
             'customer_paid_at' => $order->customer_paid_at?->toIso8601String(),
+            'has_proof' => (bool) $order->proof_path,
         ];
     }
 
@@ -84,8 +85,8 @@ final class Presenter
             'paid_at' => $order->paid_at?->toIso8601String(),
             'rejected_reason' => $order->rejected_reason,
             'validated_by' => $order->validator?->name,
-            'payment_gateway' => $order->payment_gateway,
-            'payment_ref' => $order->payment_ref,
+            'proof_url' => $order->proofUrl(),
+            'proof_uploaded_at' => $order->proof_uploaded_at?->toIso8601String(),
         ];
     }
 
@@ -111,14 +112,8 @@ final class Presenter
             'payment_deadline' => $order->payment_deadline?->toIso8601String(),
             'customer_paid_at' => $order->customer_paid_at?->toIso8601String(),
             'rejected_reason' => $order->rejected_reason,
-            'payment' => [
-                'driver' => PaymentGateway::driver(),
-                'dynamic' => PaymentGateway::isDynamic() && (bool) $order->qr_string,
-                'qr_string' => $order->qr_string,
-                'qr_url' => $order->qr_url,
-                'qr_expires_at' => $order->qr_expires_at?->toIso8601String(),
-                'simulate' => PaymentGateway::driver() === 'mock',
-            ],
+            'proof_url' => $order->proofUrl(),
+            'proof_uploaded_at' => $order->proof_uploaded_at?->toIso8601String(),
             'items' => $order->items->map(fn ($i) => [
                 'name' => $i->product_name,
                 'qty' => $i->qty,

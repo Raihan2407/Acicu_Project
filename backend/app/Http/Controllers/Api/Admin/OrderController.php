@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Services\Presenter;
-use App\Services\WhatsAppNotifier;
 use App\Services\XlsxWriter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -73,7 +72,6 @@ class OrderController extends Controller
         ]);
 
         ActivityLog::record($request->user(), 'order.validate', "Mengonfirmasi pembayaran {$order->po_number}", ['order_id' => $order->id], $request);
-        WhatsAppNotifier::forOrder($order->fresh('items'), 'paid');
 
         return response()->json(['data' => Presenter::orderDetail($order->fresh(['items', 'validator']))]);
     }
@@ -97,7 +95,6 @@ class OrderController extends Controller
         ]);
 
         ActivityLog::record($request->user(), 'order.reject', "Menolak pembayaran {$order->po_number}", ['order_id' => $order->id], $request);
-        WhatsAppNotifier::forOrder($order->fresh('items'), 'cancelled');
 
         return response()->json(['data' => Presenter::orderDetail($order->fresh(['items', 'validator']))]);
     }
@@ -123,11 +120,6 @@ class OrderController extends Controller
 
         ActivityLog::record($request->user(), 'order.status', "Mengubah status {$order->po_number} menjadi {$order->statusLabel()}", ['order_id' => $order->id, 'status' => $new], $request);
 
-        if ($new === Order::STATUS_DONE) {
-            WhatsAppNotifier::forOrder($order->fresh('items'), 'done');
-        } elseif ($new === Order::STATUS_CANCELLED) {
-            WhatsAppNotifier::forOrder($order->fresh('items'), 'cancelled');
-        }
 
         return response()->json(['data' => Presenter::orderDetail($order->fresh(['items', 'validator']))]);
     }

@@ -10,13 +10,9 @@
   function fill(d) {
     S = d; slots = (d.delivery_slots || []).slice();
     $('store_open').checked = !!d.store_open; storeLbl();
+    $('require_proof').checked = !!d.require_proof;
     TEXT.forEach(function (k) { $(k).value = d[k] == null ? '' : d[k]; });
     renderSlots();
-    var it = d.integrations || {};
-    var WA = { log: ['Mode uji', 'Pesan hanya dicatat di log, tidak terkirim.'], fonnte: ['Aktif (Fonnte)', 'Pesan terkirim sungguhan.'], off: ['Nonaktif', ''] };
-    var PAY = { manual: ['QRIS statis', 'Gambar QRIS tetap + konfirmasi manual.'], mock: ['QRIS dinamis (simulasi)', 'Demo: ada tombol simulasi bayar.'], midtrans: ['QRIS dinamis (Midtrans)', 'Terdeteksi otomatis.'] };
-    var w = WA[it.whatsapp_driver] || ['-', ''], pm = PAY[it.payment_driver] || ['-', ''];
-    $('intWa').textContent = w[0]; $('intWaHint').textContent = w[1]; $('intPay').textContent = pm[0]; $('intPayHint').textContent = pm[1];
     $('qrisPrev').hidden = !d.qris_url; if (d.qris_url) $('qrisPrev').src = d.qris_url;
   }
   function storeLbl() { $('storeLbl').textContent = $('store_open').checked ? 'Pre-order dibuka' : 'Pre-order ditutup'; }
@@ -25,6 +21,7 @@
     var err = $('setErr'); err.classList.add('hidden');
     var fd = new FormData();
     fd.append('store_open', $('store_open').checked ? '1' : '0');
+    fd.append('require_proof', $('require_proof').checked ? '1' : '0');
     TEXT.forEach(function (k) { fd.append(k, $(k).value); });
     fd.append('delivery_slots', slots.join(','));
     if ($('qris').files[0]) fd.append('qris', $('qris').files[0]);
@@ -33,7 +30,7 @@
     try {
       var res = await Api.post('admin/settings', { auth: true, form: fd });
       fill(res.data); $('qris').value = '';
-      Util.toast('Pengaturan tersimpan. Landing page ikut diperbarui.', 'success');
+      Util.toast('Pengaturan tersimpan.', 'success');
     } catch (e) {
       var first = e.errors ? e.errors[Object.keys(e.errors)[0]][0] : e.message;
       err.textContent = first; err.classList.remove('hidden'); err.scrollIntoView({ block: 'center' });
@@ -62,7 +59,7 @@
       '<div class="field"><label>Nama</label><input name="name"></div><div class="field"><label>Username</label><input name="username"></div>' +
       '<div class="field"><label>Email</label><input name="email" type="email"></div>' +
       '<div class="field"><label>Peran</label><select name="role"><option value="admin">Admin</option><option value="owner">Owner</option></select></div>' +
-      '<div class="field"><label>Kata sandi awal</label><input name="password" type="password" autocomplete="new-password"><span class="hint">Min. 10 karakter, huruf dan angka. Sampaikan langsung, bukan lewat chat grup.</span></div>' +
+      '<div class="field"><label>Kata sandi awal</label><input name="password" type="password" autocomplete="new-password"><span class="hint">Min. 10 karakter, huruf dan angka.</span></div>' +
       '<div class="actions"><button type="button" class="btn" data-close>Batal</button><button class="btn primary">Simpan</button></div></form>');
     m.querySelector('#uf').addEventListener('submit', async function (e) {
       e.preventDefault(); var f = e.target, body = {};
@@ -73,7 +70,7 @@
   }
   function resetPw(u) {
     var m = modal('<h3>Reset Sandi ' + esc(u.username) + ' <button data-close>×</button></h3><div class="alert hidden" id="uErr"></div>' +
-      '<div class="field"><label>Sandi baru</label><input id="np" type="password" autocomplete="new-password"><span class="hint">Min. 10 karakter, huruf dan angka. Semua sesi akun ini akan keluar.</span></div>' +
+      '<div class="field"><label>Sandi baru</label><input id="np" type="password" autocomplete="new-password"><span class="hint">Min. 10 karakter, huruf dan angka.</span></div>' +
       '<div class="actions"><button class="btn" data-close>Batal</button><button class="btn primary" id="okpw">Reset</button></div>');
     m.querySelector('#okpw').addEventListener('click', async function () {
       try { await Api.post('admin/users/' + u.id + '/password', { auth: true, json: { password: m.querySelector('#np').value } }); Util.toast('Sandi direset.', 'success'); $('modalHost').innerHTML = ''; }
@@ -100,12 +97,6 @@
     $('slotHourly').addEventListener('click', function () { slots = []; for (var h = 6; h <= 22; h++) slots.push(Util.pad(h) + ':00'); renderSlots(); });
     $('slotList').addEventListener('click', function (e) { var b = e.target.closest('[data-rm]'); if (!b) return; slots = slots.filter(function (t) { return t !== b.dataset.rm; }); renderSlots(); });
     $('qrisRemove').addEventListener('click', function () { if (confirm('Hapus gambar QRIS?')) save({ remove_qris: '1' }); });
-    $('testWa').addEventListener('click', async function () {
-      var btn = this; btn.disabled = true;
-      try { var r = await Api.post('admin/settings/test-whatsapp', { auth: true, json: { phone: $('testPhone').value.trim() } }); Util.toast(r.message, r.data.sent ? 'success' : 'error'); }
-      catch (x) { Util.toast(x.errors ? x.errors[Object.keys(x.errors)[0]][0] : x.message, 'error'); }
-      btn.disabled = false;
-    });
     $('userAdd').addEventListener('click', userForm);
     $('userRows').addEventListener('click', async function (e) {
       var b = e.target.closest('[data-u]'); if (!b) return;

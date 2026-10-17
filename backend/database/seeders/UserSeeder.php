@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $accounts = [
-            ['name' => 'Owner Bungcu', 'username' => 'owner', 'email' => config('acicu.owner_email'), 'role' => User::ROLE_OWNER],
+            ['name' => 'Owner ACICU', 'username' => 'owner', 'email' => config('acicu.owner_email'), 'role' => User::ROLE_OWNER],
             ['name' => 'Admin Dapur', 'username' => 'admin', 'email' => config('acicu.admin_email'), 'role' => User::ROLE_ADMIN],
         ];
 
@@ -23,13 +23,15 @@ class UserSeeder extends Seeder
                 continue;
             }
 
-            $fromEnv = (string) config('acicu.admin_password');
+            $fromEnv = (string) ($account['role'] === User::ROLE_OWNER
+                ? (config('acicu.owner_password') ?: config('acicu.admin_password'))
+                : config('acicu.admin_password'));
             $password = $fromEnv !== '' ? $fromEnv : Str::password(14, true, true, false);
 
             User::query()->create($account + ['password' => $password, 'is_active' => true]);
 
             $this->command?->info("Akun {$account['role']} dibuat: {$account['username']} / {$account['email']}"
-                .($fromEnv === '' ? "  |  password: {$password}   (catat sekarang, tidak ditampilkan lagi)" : '  |  password dari ACICU_ADMIN_PASSWORD'));
+                .($fromEnv === '' ? "  |  password: {$password}   (catat sekarang, tidak ditampilkan lagi)" : '  |  password dari .env'));
         }
     }
 }

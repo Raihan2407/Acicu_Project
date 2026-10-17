@@ -88,16 +88,26 @@
     badge.textContent = pay[1];
     badge.className = 'badge ' + pay[2];
 
+    var pr = document.getElementById('proofRow');
+    pr.hidden = !o.proof_url;
+    if (o.proof_url) document.getElementById('proofLink').href = o.proof_url;
+
     // ----- biaya -----
     document.getElementById('subtotal').textContent = Util.rupiah(o.subtotal);
     document.getElementById('shipping').textContent = Util.rupiah(o.shipping_fee);
     document.getElementById('discount').textContent = '-' + Util.rupiah(o.discount);
     document.getElementById('total').textContent = Util.rupiah(o.total);
 
-    document.getElementById('waBtn').onclick = function (e) {
+    var waBtn = document.getElementById('waBtn');
+    var confirming = o.status === 'menunggu_konfirmasi';
+    waBtn.innerHTML = confirming ? '<i class="fa-brands fa-whatsapp"></i> Kabari Admin Sekarang' : '<i class="fa-regular fa-message"></i> Hubungi Admin via WhatsApp';
+    waBtn.onclick = function (e) {
       e.preventDefault();
       var number = config ? config.contact.whatsapp : '6282286512274';
-      window.open(Util.waLink(number, 'Halo Admin ACICU, saya ingin menanyakan pesanan ' + o.po_number + ' atas nama ' + o.customer_name + '.'), '_blank', 'noopener');
+      var msg = confirming
+        ? 'Halo Admin ACICU, saya sudah membayar pesanan ' + o.po_number + ' atas nama ' + o.customer_name + ' sebesar ' + Util.rupiah(o.total) + '. Mohon dicek ya.'
+        : 'Halo Admin ACICU, saya ingin menanyakan pesanan ' + o.po_number + ' atas nama ' + o.customer_name + '.';
+      window.open(Util.waLink(number, msg), '_blank', 'noopener');
     };
 
     // berhenti memperbarui bila sudah final

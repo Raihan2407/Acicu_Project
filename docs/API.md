@@ -45,14 +45,8 @@ Sukses 201: `data.tracking_token` dipakai untuk halaman pembayaran/status (`pemb
 ### GET `/orders/{token}`
 Detail pesanan untuk pelanggan (nomor WA disamarkan). Dipolling frontend.
 
-### POST `/orders/{token}/simulate-pay`
-Hanya saat `ACICU_PAYMENT_DRIVER=mock` (demo): meniru "pembayaran masuk", pesanan langsung lunas dan masuk dapur. Selain mode mock: 404.
-
-### POST `/payments/midtrans/notification`
-Webhook yang dipanggil server Midtrans (bukan frontend). Tanda tangan `signature_key` diverifikasi (sha512 dari order_id+status_code+gross_amount+server key); palsu = 403. `settlement`/`capture` dengan nominal cocok = pesanan otomatis lunas. Aktif hanya saat driver `midtrans`.
-
 ### POST `/orders/{token}/paid`
-Tombol "Saya Sudah Bayar": status jadi `menunggu_konfirmasi`. Uang belum dianggap masuk sampai admin konfirmasi.
+Tombol "Saya Sudah Bayar": status jadi `menunggu_konfirmasi`. Uang belum dianggap masuk sampai admin konfirmasi. Body opsional `multipart/form-data` dengan field `proof` (jpg/jpeg/png/webp, maks 2 MB). Wajib bila pengaturan `require_proof` aktif (422 pada `proof`). Respons memuat `proof_url` dan `proof_uploaded_at`.
 
 ---
 ## B. Admin (Bearer token)
@@ -99,21 +93,8 @@ Tombol "Saya Sudah Bayar": status jadi `menunggu_konfirmasi`. Uang belum diangga
 | PUT/PATCH | `/admin/users/{id}` | Ubah nama/peran/`is_active` (tidak boleh nonaktifkan diri sendiri; minimal 1 owner aktif) |
 | POST | `/admin/users/{id}/password` | Reset sandi `{password}` |
 
-## QRIS dinamis & WhatsApp otomatis
-Diatur di `backend/.env` (bukan di panel), keduanya bawaannya aman dan gratis:
-
-| Pengaturan | Nilai | Arti |
-|---|---|---|
-| `ACICU_PAYMENT_DRIVER` | `manual` | QRIS statis (gambar) + admin konfirmasi manual |
-| | `mock` | QRIS dinamis **simulasi**: kode unik per pesanan + tombol simulasi bayar (demo kuliah) |
-| | `midtrans` | QRIS dinamis asli lewat Midtrans (`ACICU_MIDTRANS_SERVER_KEY`, `ACICU_MIDTRANS_PRODUCTION`); sandbox gratis untuk uji |
-| `ACICU_WA_DRIVER` | `log` | pesan hanya dicatat di `storage/logs/laravel.log` (tidak terkirim) |
-| | `fonnte` | kirim sungguhan lewat Fonnte (`ACICU_FONNTE_TOKEN`) |
-| | `off` | nonaktif |
-
-Respons `GET /orders/{token}` memuat `data.payment {driver, dynamic, qr_string, qr_url, qr_expires_at, simulate}`; frontend menggambar QR dari `qr_string`.
-Pesan WhatsApp otomatis dikirim saat: pesanan dibuat (berisi tautan bayar), pembayaran dikonfirmasi (admin / otomatis), pesanan selesai, pesanan dibatalkan. Gagal kirim tidak pernah menggagalkan pesanan.
-Owner: `POST /admin/settings/test-whatsapp {phone}` mengirim pesan uji; `GET /admin/settings` memuat `integrations` (hanya-baca).
+## Pemberitahuan ke owner
+`GET /config` memuat `require_proof`. Daftar pesanan admin memuat `has_proof`, detail memuat `proof_url`. Pengaturan `.env`: `ACICU_REQUIRE_PROOF` (bawaan), `ACICU_OWNER_NOTIFY=off|log|telegram`, `ACICU_TELEGRAM_BOT_TOKEN`, `ACICU_TELEGRAM_CHAT_ID`. Kegagalan kirim Telegram hanya dicatat di log dan tidak menggagalkan pesanan. Panel admin memantau `GET /admin/me` (`pending_count`) tiap 15 detik untuk bunyi dan badge.
 
 ## Sinkronisasi landing ↔ admin
 Semua dari satu database, jadi tidak ada data ganda. Admin ubah kuota/status produk → `GET /products` berubah, landing menyegarkan tiap ±15 detik. Admin ubah Pengaturan → `GET /config`, landing/checkout menyegarkan tiap 30 detik. Pesanan checkout → langsung muncul di Data Pesanan admin (polling 15 detik).

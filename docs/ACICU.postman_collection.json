@@ -133,29 +133,6 @@
        ]
       }
      }
-    },
-    {
-     "name": "Simulasi bayar (driver mock)",
-     "request": {
-      "method": "POST",
-      "header": [
-       {
-        "key": "Accept",
-        "value": "application/json"
-       }
-      ],
-      "url": {
-       "raw": "{{base_url}}/orders/TOKEN/simulate-pay",
-       "host": [
-        "{{base_url}}"
-       ],
-       "path": [
-        "orders",
-        "TOKEN",
-        "simulate-pay"
-       ]
-      }
-     }
     }
    ]
   },
@@ -689,42 +666,6 @@
         "admin",
         "logout"
        ]
-      }
-     }
-    },
-    {
-     "name": "Kirim pesan WA uji (owner)",
-     "request": {
-      "method": "POST",
-      "header": [
-       {
-        "key": "Accept",
-        "value": "application/json"
-       },
-       {
-        "key": "Authorization",
-        "value": "Bearer {{token}}"
-       }
-      ],
-      "url": {
-       "raw": "{{base_url}}/admin/settings/test-whatsapp",
-       "host": [
-        "{{base_url}}"
-       ],
-       "path": [
-        "admin",
-        "settings",
-        "test-whatsapp"
-       ]
-      },
-      "body": {
-       "mode": "raw",
-       "raw": "{\n  \"phone\": \"081234567890\"\n}",
-       "options": {
-        "raw": {
-         "language": "json"
-        }
-       }
       }
      }
     }

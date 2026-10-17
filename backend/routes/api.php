@@ -20,8 +20,6 @@ Route::get('products', [ProductController::class, 'index']);
 Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:checkout');
 Route::get('orders/{token}', [OrderController::class, 'show']);
 Route::post('orders/{token}/paid', [OrderController::class, 'markPaid'])->middleware('throttle:checkout');
-Route::post('orders/{token}/simulate-pay', [OrderController::class, 'simulatePay'])->middleware('throttle:checkout'); // hanya driver mock
-Route::post('payments/midtrans/notification', [\App\Http\Controllers\Api\PaymentWebhookController::class, 'midtrans']); // webhook penyedia pembayaran
 
 // ---------- ADMIN ----------
 Route::prefix('admin')->group(function () {
@@ -52,7 +50,6 @@ Route::prefix('admin')->group(function () {
         Route::middleware('role:owner')->group(function () {
             Route::get('settings', [Admin\SettingsController::class, 'show']);
             Route::match(['put', 'post'], 'settings', [Admin\SettingsController::class, 'update']);
-            Route::post('settings/test-whatsapp', [Admin\SettingsController::class, 'testWhatsapp']);
 
             Route::get('users', [Admin\UserController::class, 'index']);
             Route::post('users', [Admin\UserController::class, 'store']);

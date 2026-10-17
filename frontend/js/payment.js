@@ -7,7 +7,8 @@
   var payView = document.getElementById('payView');
   var order = null;
   var timer = null;
-  var drawnQr = null;
+  var proofFile = null;
+  var requireProof = false;
 
   function showState(icon, title, html, bad) {
     payView.hidden = true;
@@ -36,29 +37,9 @@
         '<div class="sum-price">' + Util.rupiah(i.subtotal) + '</div></div>';
     }).join('');
 
-    renderQr();
-
     var today = Util.todayIso();
     var dayText = order.delivery_date === today ? 'Hari ini' : Util.dateLong(order.delivery_date);
     document.getElementById('deliverInfo').textContent = 'Slot pengantaran: ' + dayText + ', ' + order.delivery_time + ' WIB';
-  }
-
-  /** QRIS dinamis: gambar kode dari qr_string di browser (tidak menyimpan/mengirim ke pihak lain). */
-  function renderQr() {
-    var pay = order.payment || {};
-    var dyn = !!(pay.dynamic && pay.qr_string && window.qrcode);
-    document.getElementById('dynBox').hidden = !dyn;
-    document.getElementById('staticBox').hidden = dyn;
-    document.getElementById('autoNote').hidden = !dyn;
-    document.getElementById('simBtn').hidden = !(dyn && pay.simulate);
-    document.getElementById('dynTag').textContent = pay.simulate ? 'SIMULASI' : 'KHUSUS PESANAN INI';
-    if (!dyn || drawnQr === pay.qr_string) return;
-    var qr = window.qrcode(0, 'M');
-    qr.addData(pay.qr_string);
-    qr.make();
-    document.getElementById('dynQr').innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
-    document.getElementById('qrUntil').textContent = pay.qr_expires_at ? Util.timeWib(pay.qr_expires_at) : '-';
-    drawnQr = pay.qr_string;
   }
 
   function tick() {
@@ -104,6 +85,8 @@
 
   Layout.getConfig().then(function (cfg) {
     var p = cfg.payment;
+    requireProof = !!cfg.require_proof;
+    document.getElementById('proofOpt').textContent = requireProof ? 'Wajib diunggah.' : 'Opsional.';
     document.getElementById('bankName').textContent = p.bank_name;
     document.getElementById('bankName2').textContent = p.bank_name;
     document.getElementById('bankAccount').textContent = p.bank_account;
@@ -117,6 +100,34 @@
       window.open(Util.waLink(cfg.contact.whatsapp, text), '_blank', 'noopener');
     });
   });
+
+  /* ---------- bukti pembayaran ---------- */
+  var proofInput = document.getElementById('proofInput');
+  var proofDrop = document.getElementById('proofDrop');
+  function showProofError(msg) {
+    var el = document.getElementById('proofErr');
+    el.textContent = msg || ''; el.hidden = !msg;
+    if (msg) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function setProof(file) {
+    showProofError('');
+    if (!file) { proofFile = null; proofInput.value = ''; document.getElementById('proofPick').hidden = true; proofDrop.hidden = false; return; }
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) { showProofError('Format harus JPG, PNG, atau WEBP.'); return; }
+    if (file.size > 2 * 1024 * 1024) { showProofError('Ukuran bukti maksimal 2 MB.'); return; }
+    proofFile = file;
+    var url = URL.createObjectURL(file);
+    document.getElementById('proofThumb').src = url;
+    document.getElementById('proofName').textContent = file.name;
+    document.getElementById('proofSize').textContent = (file.size / 1024 < 1024 ? Math.round(file.size / 1024) + ' KB' : (file.size / 1048576).toFixed(1) + ' MB');
+    document.getElementById('proofPick').hidden = false;
+    proofDrop.hidden = true;
+  }
+  proofDrop.addEventListener('click', function () { proofInput.click(); });
+  proofInput.addEventListener('change', function () { setProof(proofInput.files[0]); });
+  document.getElementById('proofRemove').addEventListener('click', function () { setProof(null); });
+  ['dragenter', 'dragover'].forEach(function (ev) { proofDrop.addEventListener(ev, function (e) { e.preventDefault(); proofDrop.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { proofDrop.addEventListener(ev, function (e) { e.preventDefault(); proofDrop.classList.remove('over'); }); });
+  proofDrop.addEventListener('drop', function (e) { if (e.dataTransfer.files[0]) setProof(e.dataTransfer.files[0]); });
 
   document.getElementById('copyBtn').addEventListener('click', function () {
     var btn = this;
@@ -132,32 +143,23 @@
 
   document.getElementById('paidBtn').addEventListener('click', function () {
     var btn = this;
+    if (requireProof && !proofFile) { showProofError('Anda belum mengunggah bukti pembayaran.'); Util.toast('Anda belum mengunggah bukti pembayaran.', 'error'); return; }
     if (!window.confirm('Pastikan pembayaran sebesar ' + Util.rupiah(order.total) + ' sudah berhasil. Lanjutkan?')) return;
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
-    Api.post('orders/' + encodeURIComponent(token) + '/paid')
+    var opts = {};
+    if (proofFile) { var fd = new FormData(); fd.append('proof', proofFile); opts.form = fd; }
+    Api.post('orders/' + encodeURIComponent(token) + '/paid', opts)
       .then(function () { location.href = 'pesanan.html?t=' + encodeURIComponent(token); })
       .catch(function (err) {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-check"></i> Saya Sudah Bayar';
-        Util.toast(err.message, 'error');
+        if (err.errors && err.errors.proof) showProofError(err.errors.proof[0]); else Util.toast(err.message, 'error');
         load();
       });
   });
 
-  document.getElementById('simBtn').addEventListener('click', function () {
-    var btn = this;
-    btn.disabled = true;
-    Api.post('orders/' + encodeURIComponent(token) + '/simulate-pay')
-      .then(function () { location.href = 'pesanan.html?t=' + encodeURIComponent(token); })
-      .catch(function (err) { btn.disabled = false; Util.toast(err.message, 'error'); });
-  });
-
   load();
   // cek otomatis: kalau admin sudah mengonfirmasi / pesanan kedaluwarsa, halaman langsung menyesuaikan
-  // pembayaran QRIS dinamis dicek lebih sering (4 detik) agar langsung berpindah setelah bayar
-  setInterval(function () {
-    if (document.hidden || document.getElementById('paidBtn').disabled) return;
-    load().catch(function () {});
-  }, 4000);
+  setInterval(function () { if (!document.hidden && !document.getElementById('paidBtn').disabled) load().catch(function () {}); }, 15000);
 })();

@@ -177,76 +177,66 @@ class PublicApiTest extends TestCase
         $this->postJson("/api/orders/{$token}/paid")->assertStatus(422);
     }
 
-    public function test_mock_gateway_creates_dynamic_qr_and_simulated_payment_marks_paid(): void
+    private function createOrderToken(): string
     {
-        config(['acicu.gateway.driver' => 'mock']);
-
-        $res = $this->postJson('/api/orders', $this->payload())
-            ->assertCreated()
-            ->assertJsonPath('data.payment.driver', 'mock')
-            ->assertJsonPath('data.payment.dynamic', true);
-
-        $this->assertStringContainsString('ACICU-MOCK-QRIS', $res->json('data.payment.qr_string'));
-        $token = $res->json('data.tracking_token');
-
-        $this->postJson("/api/orders/{$token}/simulate-pay")
-            ->assertOk()
-            ->assertJsonPath('data.status', 'proses_dapur')
-            ->assertJsonPath('data.payment_status', 'lunas');
+        return $this->postJson('/api/orders', $this->payload())->assertCreated()->json('data.tracking_token');
     }
 
-    public function test_simulated_payment_is_not_available_in_manual_mode(): void
+    public function test_paid_claim_with_proof_stores_image_and_moves_to_confirmation(): void
     {
-        config(['acicu.gateway.driver' => 'manual']);
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $token = $this->createOrderToken();
 
-        $token = $this->postJson('/api/orders', $this->payload())->assertCreated()
-            ->assertJsonPath('data.payment.dynamic', false)->json('data.tracking_token');
+        $res = $this->post("/api/orders/{$token}/paid", [
+            'proof' => \Illuminate\Http\UploadedFile::fake()->image('bukti.jpg', 400, 600)->size(300),
+        ], ['Accept' => 'application/json'])->assertOk()->assertJsonPath('data.status', 'menunggu_konfirmasi');
 
-        $this->postJson("/api/orders/{$token}/simulate-pay")->assertNotFound();
+        $this->assertNotNull($res->json('data.proof_url'));
+        $path = Order::first()->proof_path;
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($path);
     }
 
-    public function test_midtrans_webhook_requires_valid_signature(): void
+    public function test_proof_is_optional_by_default_but_required_when_setting_is_on(): void
     {
-        config(['acicu.gateway.driver' => 'manual']);
-        $this->postJson('/api/orders', $this->payload())->assertCreated();
-        $order = Order::first();
-        $order->update(['payment_ref' => 'ACICU-1-ABCDE']);
+        $token = $this->createOrderToken();
+        $this->postJson("/api/orders/{$token}/paid")->assertOk()->assertJsonPath('data.status', 'menunggu_konfirmasi');
 
-        config(['acicu.gateway.driver' => 'midtrans', 'acicu.gateway.midtrans_server_key' => 'SB-key-uji']);
+        \App\Services\Settings::set(['require_proof' => true]);
+        \App\Services\Settings::flush();
 
-        $payload = [
-            'order_id' => 'ACICU-1-ABCDE',
-            'status_code' => '200',
-            'gross_amount' => $order->total.'.00',
-            'transaction_status' => 'settlement',
-        ];
-
-        $this->postJson('/api/payments/midtrans/notification', $payload + ['signature_key' => 'palsu'])->assertStatus(403);
-        $this->assertSame('belum_bayar', $order->fresh()->payment_status);
-
-        $signature = hash('sha512', $payload['order_id'].$payload['status_code'].$payload['gross_amount'].'SB-key-uji');
-        $this->postJson('/api/payments/midtrans/notification', $payload + ['signature_key' => $signature])->assertOk();
-
-        $this->assertSame('lunas', $order->fresh()->payment_status);
-        $this->assertSame('proses_dapur', $order->fresh()->status);
+        $second = $this->postJson('/api/orders', $this->payload(['items' => [['product_id' => Product::first()->id, 'qty' => 1]]]))->assertCreated()->json('data.tracking_token');
+        $this->postJson("/api/orders/{$second}/paid")->assertStatus(422)->assertJsonValidationErrors('proof');
     }
 
-    public function test_whatsapp_message_is_sent_through_fonnte_without_blocking_the_order(): void
+    public function test_proof_rejects_non_image_and_oversize_files(): void
     {
-        config(['acicu.notify.driver' => 'fonnte', 'acicu.notify.fonnte_token' => 'TOKEN-UJI']);
-        \Illuminate\Support\Facades\Http::fake(['api.fonnte.com/*' => \Illuminate\Support\Facades\Http::response(['status' => true], 200)]);
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $token = $this->createOrderToken();
 
-        $this->postJson('/api/orders', $this->payload())->assertCreated();
+        $this->post("/api/orders/{$token}/paid", ['proof' => \Illuminate\Http\UploadedFile::fake()->create('virus.pdf', 100, 'application/pdf')], ['Accept' => 'application/json'])
+            ->assertStatus(422)->assertJsonValidationErrors('proof');
 
-        \Illuminate\Support\Facades\Http::assertSent(fn ($r) => str_contains($r->url(), 'fonnte') && $r['target'] === '6281234567890');
+        $this->post("/api/orders/{$token}/paid", ['proof' => \Illuminate\Http\UploadedFile::fake()->image('besar.jpg')->size(3000)], ['Accept' => 'application/json'])
+            ->assertStatus(422)->assertJsonValidationErrors('proof');
     }
 
-    public function test_whatsapp_failure_does_not_break_checkout(): void
+    public function test_owner_notifier_sends_telegram_message_when_payment_is_claimed(): void
     {
-        config(['acicu.notify.driver' => 'fonnte', 'acicu.notify.fonnte_token' => 'TOKEN-UJI']);
-        \Illuminate\Support\Facades\Http::fake(['api.fonnte.com/*' => \Illuminate\Support\Facades\Http::response('error', 500)]);
+        config(['acicu.owner_notify.driver' => 'telegram', 'acicu.owner_notify.telegram_bot_token' => 'BOT:UJI', 'acicu.owner_notify.telegram_chat_id' => '12345']);
+        \Illuminate\Support\Facades\Http::fake(['api.telegram.org/*' => \Illuminate\Support\Facades\Http::response(['ok' => true], 200)]);
 
-        $this->postJson('/api/orders', $this->payload())->assertCreated();
-        $this->assertSame(1, Order::count());
+        $token = $this->createOrderToken();
+        $this->postJson("/api/orders/{$token}/paid")->assertOk();
+
+        \Illuminate\Support\Facades\Http::assertSent(fn ($r) => str_contains($r->url(), 'api.telegram.org/botBOT:UJI/sendMessage') && $r['chat_id'] === '12345');
+    }
+
+    public function test_telegram_failure_does_not_break_the_payment_claim(): void
+    {
+        config(['acicu.owner_notify.driver' => 'telegram', 'acicu.owner_notify.telegram_bot_token' => 'BOT:UJI', 'acicu.owner_notify.telegram_chat_id' => '12345']);
+        \Illuminate\Support\Facades\Http::fake(['api.telegram.org/*' => \Illuminate\Support\Facades\Http::response('error', 500)]);
+
+        $token = $this->createOrderToken();
+        $this->postJson("/api/orders/{$token}/paid")->assertOk()->assertJsonPath('data.status', 'menunggu_konfirmasi');
     }
 }

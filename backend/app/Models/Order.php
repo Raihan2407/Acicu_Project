@@ -33,7 +33,7 @@ class Order extends Model
         'delivery_date', 'delivery_time', 'notes', 'subtotal', 'shipping_fee', 'discount', 'total',
         'payment_method', 'payment_status', 'status', 'payment_deadline', 'customer_paid_at',
         'rejected_reason', 'paid_at', 'validated_by',
-        'payment_gateway', 'payment_ref', 'qr_string', 'qr_url', 'qr_expires_at',
+        'proof_path', 'proof_uploaded_at',
     ];
 
     protected function casts(): array
@@ -47,8 +47,14 @@ class Order extends Model
             'payment_deadline' => 'datetime',
             'customer_paid_at' => 'datetime',
             'paid_at' => 'datetime',
-            'qr_expires_at' => 'datetime',
+            'proof_uploaded_at' => 'datetime',
         ];
+    }
+
+    /** URL publik bukti pembayaran (nama berkas acak), atau null bila belum diunggah. */
+    public function proofUrl(): ?string
+    {
+        return $this->proof_path ? asset('storage/'.ltrim($this->proof_path, '/')) : null;
     }
 
     public function items(): HasMany

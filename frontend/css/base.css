@@ -45,7 +45,6 @@ button{ font-family:inherit; }
   transition:background .2s,color .2s;
 }
 .nav-link:hover,.nav-link.active{ background:var(--pink); color:#fff; }
-.separator{ width:1px; height:34px; background:#FFB4C9; margin:0 6px; }
 
 .nav-right{ display:flex; align-items:center; gap:10px; }
 .cart-btn{

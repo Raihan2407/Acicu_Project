@@ -10,11 +10,11 @@ const iso = (d) => d.toISOString();
 const day = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 
 const users = {
-  owner: { id: 1, name: 'Owner Bungcu', username: 'owner', email: 'owner@acicu.test', role: 'owner', role_label: 'Owner' },
+  owner: { id: 1, name: 'Owner ACICU', username: 'owner', email: 'owner@acicu.test', role: 'owner', role_label: 'Super Admin' },
   admin: { id: 2, name: 'Admin Dapur', username: 'admin', email: 'admin@acicu.test', role: 'admin', role_label: 'Admin' },
 };
 const tokens = {};
-const SET = { store_open: true, closed_message: 'Pre-order sedang ditutup. Silakan kembali lagi nanti.', batch_label: 'Batch Contoh', shipping_fee: 5000, delivery_slots: Array.from({ length: 17 }, (_, i) => String(i + 6).padStart(2, '0') + ':00'), order_cutoff_minutes: 90, max_advance_days: 30, payment_ttl_minutes: 60, bank_name: 'BCA', bank_account: '827-091-2384', bank_holder: 'Aneka Aci Bungcu', whatsapp: '6282286512274', whatsapp_display: '082286512274', instagram: 'acicu.licious', tiktok: 'acicu.licious', admin_hours: '08:00 - 19:00 WIB' };
+const SET = { store_open: true, require_proof: false, closed_message: 'Pre-order sedang ditutup. Silakan kembali lagi nanti.', batch_label: 'Batch Contoh', shipping_fee: 5000, delivery_slots: Array.from({ length: 17 }, (_, i) => String(i + 6).padStart(2, '0') + ':00'), order_cutoff_minutes: 90, max_advance_days: 30, payment_ttl_minutes: 60, bank_name: 'BCA', bank_account: '827-091-2384', bank_holder: 'Aneka Aci Bungcu', whatsapp: '6282286512274', whatsapp_display: '082286512274', instagram: 'acicu.licious', tiktok: 'acicu.licious', admin_hours: '08:00 - 19:00 WIB' };
 const PASS = {};
 let products = [
   { id: 1, name: 'Molachee Keju Crispy', short_name: 'Molachee', slug: 'molachee', category: 'Aci Kering', short_description: 'Aci crispy dengan taburan keju gurih', description: '', default_note: 'Pedas Level: Sedang • Bumbu Ekstra Daun Jeruk', price: 10000, daily_quota: 30, image_url: 'http://localhost:' + PORT + '/images/products/molachee.png', is_active: true },
@@ -49,12 +49,11 @@ const mask = (w) => w.slice(0, 4) + '-' + w.slice(4, 8) + '-xxxx';
 const row = (o) => ({ id: o.id, po_number: o.po_number, customer_name: o.customer_name, whatsapp: o.whatsapp, whatsapp_link: 'https://wa.me/62' + o.whatsapp.slice(1),
   items: o.items, items_summary: summary(o), portions: portions(o), net_total: money(o), total: o.total, ordered_at: iso(o.created_at), delivery_date: o.delivery_date,
   delivery_time: o.delivery_time, status: o.status, status_label: LABELS[o.status], payment_status: o.payment_status, payment_method: o.payment_method,
-  payment_deadline: iso(o.payment_deadline), customer_paid_at: o.customer_paid_at && iso(o.customer_paid_at) });
-const detail = (o) => ({ ...row(o), address: o.address, notes: o.notes, subtotal: o.subtotal, shipping_fee: o.shipping_fee, discount: o.discount, paid_at: null, rejected_reason: o.rejected_reason, validated_by: null });
-const DRIVER = process.env.PAY || 'mock';
-const WA_LOG = [];
-const payBlock = (o) => ({ driver: DRIVER, dynamic: DRIVER !== 'manual', qr_string: DRIVER !== 'manual' ? 'ACICU-MOCK-QRIS|' + o.po_number + '|' + o.total + '|' + o.tracking_token.slice(3, 19).toUpperCase() : null, qr_url: null, qr_expires_at: iso(o.payment_deadline), simulate: DRIVER === 'mock' });
-const pub = (o) => ({ payment: payBlock(o), tracking_token: o.tracking_token, po_number: o.po_number, customer_name: o.customer_name, whatsapp_masked: mask(o.whatsapp), ordered_at: iso(o.created_at),
+  payment_deadline: iso(o.payment_deadline), customer_paid_at: o.customer_paid_at && iso(o.customer_paid_at), has_proof: !!o.proof });
+const detail = (o) => ({ ...row(o), proof_url: o.proof ? PROOF_URL : null, proof_uploaded_at: o.proof_at ? iso(o.proof_at) : null, address: o.address, notes: o.notes, subtotal: o.subtotal, shipping_fee: o.shipping_fee, discount: o.discount, paid_at: null, rejected_reason: o.rejected_reason, validated_by: null });
+const REQ={proof:false};
+const PROOF_URL='http://localhost:'+PORT+'/images/qris-placeholder.svg';
+const pub = (o) => ({ proof_url: o.proof ? PROOF_URL : null, proof_uploaded_at: o.proof_at ? iso(o.proof_at) : null, tracking_token: o.tracking_token, po_number: o.po_number, customer_name: o.customer_name, whatsapp_masked: mask(o.whatsapp), ordered_at: iso(o.created_at),
   delivery_date: o.delivery_date, delivery_time: o.delivery_time, kitchen_eta: '10:00', notes: o.notes, status: o.status, status_label: LABELS[o.status], payment_status: o.payment_status,
   payment_deadline: iso(o.payment_deadline), customer_paid_at: o.customer_paid_at && iso(o.customer_paid_at), rejected_reason: o.rejected_reason,
   items: o.items.map((i) => ({ ...i, image_url: (products.find((p) => p.name === i.product_name) || {}).image_url })), subtotal: o.subtotal, shipping_fee: o.shipping_fee, discount: o.discount, total: o.total });
@@ -83,7 +82,7 @@ const server = http.createServer(async (req, res) => {
   let body = {}; try { body = ct.includes('json') ? JSON.parse(raw.toString() || '{}') : ct.includes('multipart') ? parseMultipart(raw, ct) : {}; } catch (e) {}
   const m = req.method;
 
-  if (route === 'config') return send(res, 200, { data: { shipping_fee: SET.shipping_fee, delivery_slots: SET.delivery_slots, store_open: SET.store_open, closed_message: SET.closed_message, max_advance_days: SET.max_advance_days, payment_ttl_minutes: SET.payment_ttl_minutes, order_cutoff_minutes: SET.order_cutoff_minutes, today: day(0), batch_label: SET.batch_label, payment: { bank_name: SET.bank_name, bank_account: SET.bank_account, bank_holder: SET.bank_holder, driver: DRIVER, dynamic: DRIVER !== 'manual', qris_url: 'http://localhost:' + PORT + '/images/qris-placeholder.svg' }, contact: { whatsapp: SET.whatsapp, whatsapp_display: SET.whatsapp_display, instagram: SET.instagram, tiktok: SET.tiktok, admin_hours: SET.admin_hours } } });
+  if (route === 'config') return send(res, 200, { data: { shipping_fee: SET.shipping_fee, delivery_slots: SET.delivery_slots, store_open: SET.store_open, closed_message: SET.closed_message, max_advance_days: SET.max_advance_days, payment_ttl_minutes: SET.payment_ttl_minutes, order_cutoff_minutes: SET.order_cutoff_minutes, today: day(0), batch_label: SET.batch_label, require_proof: !!SET.require_proof, payment: { bank_name: SET.bank_name, bank_account: SET.bank_account, bank_holder: SET.bank_holder, qris_url: 'http://localhost:' + PORT + '/images/qris-placeholder.svg' }, contact: { whatsapp: SET.whatsapp, whatsapp_display: SET.whatsapp_display, instagram: SET.instagram, tiktok: SET.tiktok, admin_hours: SET.admin_hours } } });
   if (route === 'products' && m === 'GET') { const r = reserved(q.date || day(1)); return send(res, 200, { data: products.filter((x) => x.is_active).map((x) => ({ ...x, remaining: Math.max(0, x.daily_quota - (r[x.id] || 0)), available: x.daily_quota - (r[x.id] || 0) > 0 })) }); }
   if (route === 'orders' && m === 'POST') {
     const errors = {}; if (!body.name) errors.name = ['Nama wajib diisi.']; if (!body.whatsapp) errors.whatsapp = ['Nomor WhatsApp wajib diisi.'];
@@ -92,12 +91,15 @@ const server = http.createServer(async (req, res) => {
     const o = mk(body.name, body.whatsapp, items, 'menunggu_pembayaran', 'belum_bayar', 0, body.delivery_date); o.address = body.address; o.delivery_time = body.delivery_time; o.notes = body.notes || null;
     return send(res, 201, { data: pub(o) });
   }
-  let mt = /^orders\/([^/]+)\/simulate-pay$/.exec(route);
-  if (mt && m === 'POST') { const o = orders.find((x) => x.tracking_token === mt[1]); if (!o) return send(res, 404, { message: 'Pesanan tidak ditemukan.' }); if (o.status === 'menunggu_pembayaran' || o.status === 'menunggu_konfirmasi') { o.status = 'proses_dapur'; o.payment_status = 'lunas'; o.payment_method = 'QRIS (simulasi)'; WA_LOG.push('paid ' + o.po_number); } return send(res, 200, { data: pub(o) }); }
+  let mt;
   mt = /^orders\/([^/]+)(\/paid)?$/.exec(route);
   if (mt && mt[1] !== 'export') {
     const o = orders.find((x) => x.tracking_token === mt[1]); if (!o) return send(res, 404, { message: 'Pesanan tidak ditemukan.' });
-    if (mt[2] && m === 'POST') { if (o.status === 'menunggu_pembayaran') { o.status = 'menunggu_konfirmasi'; o.payment_status = 'menunggu'; o.customer_paid_at = new Date(); } }
+    if (mt[2] && m === 'POST') {
+      const hasFile = ct.includes('multipart') && raw.toString('latin1').includes('filename=');
+      if (SET.require_proof && !hasFile && !o.proof) return send(res, 422, { message: 'Bukti pembayaran wajib diunggah.', errors: { proof: ['Bukti pembayaran wajib diunggah.'] } });
+      if (hasFile) { o.proof = true; o.proof_at = new Date(); }
+      if (o.status === 'menunggu_pembayaran') { o.status = 'menunggu_konfirmasi'; o.payment_status = 'menunggu'; o.customer_paid_at = new Date(); } }
     return send(res, 200, { data: pub(o) });
   }
   if (route === 'admin/login' && m === 'POST') {
@@ -125,16 +127,16 @@ const server = http.createServer(async (req, res) => {
     if (mt && m === 'PATCH') { const pr = products.find((x) => x.id === +mt[1]); if (!pr) return send(res, 404, { message: 'Tidak ditemukan' }); if (body.daily_quota !== undefined) pr.daily_quota = +body.daily_quota; if (body.is_active !== undefined) pr.is_active = !!body.is_active; return send(res, 200, { data: adminProduct(pr) }); }
     if (r === 'me/password' && m === 'POST') { if (body.current_password !== (PASS[user.username] || 'demo12345')) return send(res, 422, { message: 'Sandi saat ini salah.', errors: { current_password: ['Sandi saat ini salah.'] } }); PASS[user.username] = body.password; return send(res, 200, { message: 'ok' }); }
     if (['settings', 'users'].includes(r.split('/')[0]) && user.role !== 'owner') return send(res, 403, { message: 'Akses ditolak.' });
-    if (r === 'settings' && m === 'GET') return send(res, 200, { data: { ...SET, qris_url: null, integrations: { whatsapp_driver: 'log', payment_driver: DRIVER } } });
+    if (r === 'settings' && m === 'GET') return send(res, 200, { data: { ...SET, qris_url: null } });
     if (r === 'settings' && m === 'POST') {
       if (body.delivery_slots) body.delivery_slots = String(body.delivery_slots).split(',').filter(Boolean).sort();
       ['shipping_fee', 'order_cutoff_minutes', 'max_advance_days', 'payment_ttl_minutes'].forEach((k) => { if (body[k] !== undefined) body[k] = +body[k]; });
       if (body.store_open !== undefined) body.store_open = body.store_open === '1' || body.store_open === true;
+      if (body.require_proof !== undefined) body.require_proof = body.require_proof === '1' || body.require_proof === true;
       if (body.whatsapp) body.whatsapp = body.whatsapp.replace(/^0/, '62');
       Object.keys(SET).forEach((k) => { if (body[k] !== undefined) SET[k] = body[k]; });
-      return send(res, 200, { data: { ...SET, qris_url: null, integrations: { whatsapp_driver: 'log', payment_driver: DRIVER } } });
+      return send(res, 200, { data: { ...SET, qris_url: null } });
     }
-    if (r === 'settings/test-whatsapp' && m === 'POST') { if (!/^(08|62)[0-9]{8,13}$/.test(body.phone || '')) return send(res, 422, { message: 'Nomor harus berformat 08xxxxxxxxxx atau 62xxxxxxxxxx.', errors: { phone: ['Nomor harus berformat 08xxxxxxxxxx atau 62xxxxxxxxxx.'] } }); WA_LOG.push('tes ' + body.phone); return send(res, 200, { data: { driver: 'log', sent: true }, message: 'Mode uji: pesan hanya dicatat di storage/logs/laravel.log, tidak terkirim sungguhan.' }); }
     if (r === 'users' && m === 'GET') return send(res, 200, { data: Object.values(users).map((x) => ({ ...x, is_active: x.is_active !== false })) });
     if (r === 'users' && m === 'POST') { users[body.username] = { id: Object.keys(users).length + 1, name: body.name, username: body.username, email: body.email, role: body.role, role_label: body.role === 'owner' ? 'Owner' : 'Admin' }; PASS[body.username] = body.password; return send(res, 201, { data: users[body.username] }); }
     mt = /^users\/(\d+)(?:\/(password))?$/.exec(r);

@@ -16,7 +16,9 @@
 
   function actions(o) {
     var b = '<button class="btn sm" data-act="detail" data-id="' + o.id + '">Detail</button>';
-    if (o.status === 'menunggu_konfirmasi' || o.status === 'menunggu_pembayaran')
+    if (o.has_proof && o.status === 'menunggu_konfirmasi')
+      b = '<button class="btn sm green" data-act="detail" data-id="' + o.id + '"><i class="fa-regular fa-image"></i> Validasi Bukti</button>';
+    else if (o.status === 'menunggu_konfirmasi' || o.status === 'menunggu_pembayaran')
       b += '<button class="btn sm green" data-act="confirm" data-id="' + o.id + '">Konfirmasi Bayar</button>';
     if (o.status === 'proses_dapur')
       b += '<button class="btn sm primary" data-act="done" data-id="' + o.id + '">Tandai Selesai</button>';
@@ -54,7 +56,7 @@
       var res = await Api.get('admin/orders', { auth: true, query: Object.assign({ page: state.page, per_page: state.per_page }, q()) });
       current = res.data;
       renderRows(current); renderPager(res.meta);
-      document.getElementById('queueInfo').textContent = res.meta.queue_total + ' total antrean · ' + res.meta.pending_count + ' menunggu konfirmasi pembayaran · diperbarui ' + Util.clockWib();
+      document.getElementById('queueInfo').textContent = 'Total Antrean: ' + res.meta.queue_total + ' PO';
       AdminShell.setPending(res.meta.pending_count);
     } catch (e) { Util.toast(e.message, 'error'); }
   }
@@ -78,6 +80,7 @@
       '<dt>Catatan</dt><dd>' + esc(o.notes || '-') + '</dd><dt>Status</dt><dd><span class="pill ' + o.status + '">' + esc(o.status_label) + '</span></dd>' +
       (o.rejected_reason ? '<dt>Alasan ditolak</dt><dd>' + esc(o.rejected_reason) + '</dd>' : '') +
       (o.validated_by ? '<dt>Dikonfirmasi oleh</dt><dd>' + esc(o.validated_by) + '</dd>' : '') + '</dl>' +
+      (o.proof_url ? '<div class="proof-view"><div class="lbl">Bukti pembayaran</div><a href="' + esc(o.proof_url) + '" target="_blank" rel="noopener"><img src="' + esc(o.proof_url) + '" alt="Bukti pembayaran ' + esc(o.po_number) + '"></a></div>' : '') +
       '<ul class="items-list">' + items + '</ul>' +
       '<dl class="kv"><dt>Subtotal</dt><dd>' + Util.rupiah(o.subtotal) + '</dd><dt>Ongkir</dt><dd>' + Util.rupiah(o.shipping_fee) + '</dd><dt>Total bayar</dt><dd><b>' + Util.rupiah(o.total) + '</b></dd></dl>' +
       '<div class="actions">' +
@@ -153,5 +156,6 @@
     var auto = function () { if (!document.hidden && !document.getElementById('modalHost').firstChild) load(); };
     setInterval(auto, 15000);
     document.addEventListener('visibilitychange', auto);
+    document.addEventListener('acicu:new-orders', auto);
   });
 })();

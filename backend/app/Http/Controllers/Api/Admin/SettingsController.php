@@ -29,7 +29,7 @@ class SettingsController extends Controller
         if ($request->has('whatsapp')) {
             $request->merge(['whatsapp' => $this->normalizeWhatsapp((string) $request->input('whatsapp'))]);
         }
-        foreach (['store_open', 'remove_qris'] as $flag) {
+        foreach (['store_open', 'remove_qris', 'require_proof'] as $flag) {
             if ($request->has($flag)) {
                 $request->merge([$flag => filter_var($request->input($flag), FILTER_VALIDATE_BOOLEAN)]);
             }
@@ -50,6 +50,7 @@ class SettingsController extends Controller
             'bank_holder' => ['sometimes', 'string', 'max:80'],
             'qris' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'remove_qris' => ['sometimes', 'boolean'],
+            'require_proof' => ['sometimes', 'boolean'],
             'whatsapp' => ['sometimes', 'regex:/^62[0-9]{8,13}$/'],
             'whatsapp_display' => ['sometimes', 'string', 'max:20'],
             'instagram' => ['sometimes', 'nullable', 'string', 'max:40', Rule::notIn(['@'])],
@@ -90,34 +91,10 @@ class SettingsController extends Controller
         return response()->json(['data' => $this->payload()]);
     }
 
-    /** POST /api/admin/settings/test-whatsapp {phone} : kirim pesan uji ke nomor tertentu (mengikuti driver aktif). */
-    public function testWhatsapp(Request $request): JsonResponse
-    {
-        $data = $request->validate(['phone' => ['required', 'regex:/^(08|62)[0-9]{8,13}$/']], [
-            'phone.regex' => 'Nomor harus berformat 08xxxxxxxxxx atau 62xxxxxxxxxx.',
-        ]);
-
-        $driver = \App\Services\WhatsAppNotifier::driver();
-        $ok = \App\Services\WhatsAppNotifier::send($data['phone'], 'Tes pesan otomatis dari ACICU. Jika Anda menerima ini, notifikasi WhatsApp berfungsi.');
-
-        return response()->json([
-            'data' => ['driver' => $driver, 'sent' => $ok],
-            'message' => $driver === 'log'
-                ? 'Mode uji: pesan hanya dicatat di storage/logs/laravel.log, tidak terkirim sungguhan.'
-                : ($ok ? 'Pesan uji dikirim.' : 'Pesan gagal dikirim. Cek token/driver di .env dan storage/logs/laravel.log.'),
-        ]);
-    }
-
     private function payload(): array
     {
         $s = Settings::all();
         $s['qris_url'] = $s['qris_image'] ? asset('storage/'.ltrim($s['qris_image'], '/')) : null;
-        // hanya-baca: diatur lewat file .env di server, bukan lewat panel
-        $s['integrations'] = [
-            'whatsapp_driver' => \App\Services\WhatsAppNotifier::driver(),
-            'payment_driver' => \App\Services\PaymentGateway::driver(),
-        ];
-
         return $s;
     }
 

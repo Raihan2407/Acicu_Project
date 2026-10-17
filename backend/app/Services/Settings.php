@@ -37,6 +37,7 @@ final class Settings
             'instagram' => $c['contact']['instagram'],
             'tiktok' => $c['contact']['tiktok'],
             'admin_hours' => $c['contact']['admin_hours'],
+            'require_proof' => $c['require_proof'],
         ];
     }
 

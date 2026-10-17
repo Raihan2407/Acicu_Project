@@ -250,3 +250,18 @@ body.login{ display:grid; place-items:center; padding:20px; min-height:100vh; ba
 .toast{ padding:12px 20px; border-radius:999px; background:#2B1F25; color:#fff; font:700 1.35rem 'Nunito',sans-serif; box-shadow:0 8px 24px rgba(0,0,0,.25); opacity:0; transform:translateY(10px); transition:.3s; }
 .toast.show{ opacity:1; transform:none; }
 .toast-success{ background:#0E7A3B; } .toast-error{ background:#B3114B; }
+
+/* Sapaan dashboard, lonceng notifikasi, pil antrean */
+.page-head .meta{ display:flex; align-items:center; gap:8px; margin:6px 0 0; color:#6c5c64; font:700 1.35rem 'Nunito',sans-serif; }
+.page-head .meta i{ color:var(--pink-deep); }
+.page-head .meta .dot{ color:#cbb6bf; }
+.page-head .meta .place{ color:var(--pink-deep); }
+.topbar .bell{ margin-left:auto; width:44px; height:44px; border:0; border-radius:50%; background:#FFE3EC; color:var(--pink-deep); font-size:1.7rem; cursor:pointer; display:grid; place-items:center; transition:background .15s; }
+.topbar .bell:hover{ background:#FFD0DE; }
+.topbar .bell.off{ background:#EFE7EA; color:#8A7B82; }
+.topbar .bell:focus-visible{ outline:3px solid var(--pink); outline-offset:2px; }
+#queueInfo{ display:inline-block; margin-top:8px; padding:6px 16px; border-radius:999px; background:#FFE3EC; color:var(--pink-deep); font:800 1.3rem 'Nunito',sans-serif; }
+#queueInfo:empty,#prodInfo:empty{ display:none; }
+.proof-view{ margin:14px 0; }
+.proof-view .lbl{ font:800 1.2rem 'Nunito',sans-serif; color:#6c5c64; margin-bottom:6px; }
+.proof-view img{ max-width:100%; max-height:260px; border-radius:16px; border:1px solid #F0DCE3; display:block; background:#fff; }

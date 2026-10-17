@@ -36,11 +36,10 @@
     document.getElementById('app-topbar').innerHTML =
       '<button class="burger" id="burger" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>' +
       '<span class="crumb">ACICU</span><form class="search" id="topSearch" role="search"><i class="fa-solid fa-magnifying-glass"></i>' +
-      '<input type="search" id="topSearchInput" placeholder="Cari nomor PO atau nama pelanggan…" autocomplete="off"></form>' +
-      '<span class="date"><span class="live-dot" title="Terhubung ke jam server"></span><span id="liveClock"></span></span>';
-    tickClock();
-    setInterval(tickClock, 1000);
-    setInterval(refreshBadge, 30000);
+      '<input type="search" id="topSearchInput" placeholder="Cari pesanan, produk, atau laporan…" autocomplete="off"></form>' +
+      '<button type="button" class="bell" id="bellBtn" aria-pressed="true" title="Notifikasi pesanan"><i class="fa-solid fa-bell"></i></button>';
+    setupAlerts();
+    setInterval(refreshBadge, 15000);
 
     document.getElementById('burger').addEventListener('click', function () {
       document.getElementById('app-sidebar').classList.toggle('open');
@@ -53,9 +52,44 @@
     document.getElementById('logoutBtn').addEventListener('click', logout);
   }
 
-  function tickClock() {
-    var el = document.getElementById('liveClock');
-    if (el) el.innerHTML = '<span class="clk-date">' + Util.dateFull() + ' · </span>' + Util.clockWib();
+  /* ---------- notifikasi pesanan masuk (bunyi, judul tab, notifikasi browser) ---------- */
+  var baseTitle = document.title, soundOn = true, audioCtx = null;
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+  function beep() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      [880, 1175].forEach(function (f, i) {
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime + i * 0.18;
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+        o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.32);
+      });
+    } catch (e) {}
+  }
+
+  function setupAlerts() {
+    soundOn = store('acicu_alert') !== 'off';
+    var btn = document.getElementById('bellBtn');
+    function paint() { btn.setAttribute('aria-pressed', soundOn ? 'true' : 'false'); btn.classList.toggle('off', !soundOn); btn.querySelector('i').className = 'fa-solid ' + (soundOn ? 'fa-bell' : 'fa-bell-slash'); }
+    paint();
+    btn.addEventListener('click', function () {
+      soundOn = !soundOn; store('acicu_alert', soundOn ? 'on' : 'off'); paint();
+      if (soundOn) { beep(); if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); }
+    });
+    // browser memblokir bunyi sebelum ada interaksi; aktifkan saat klik pertama
+    document.addEventListener('click', function once() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} document.removeEventListener('click', once); });
+    titleCount(user.pending_count);
+  }
+
+  function titleCount(n) { document.title = (n ? '(' + n + ') ' : '') + baseTitle; }
+
+  function alertNew(n) {
+    if (soundOn) beep();
+    Util.toast(n === 1 ? 'Ada 1 pesanan baru menunggu konfirmasi.' : 'Ada ' + n + ' pesanan baru menunggu konfirmasi.', 'success');
+    if (soundOn && window.Notification && Notification.permission === 'granted' && document.hidden) {
+      try { new Notification('ACICU: pesanan baru', { body: n + ' pesanan menunggu konfirmasi pembayaran.' }); } catch (e) {}
+    }
   }
 
   /** Perbarui badge "Data Pesanan" tanpa memuat ulang halaman. */
@@ -63,8 +97,13 @@
     if (document.hidden) return;
     try {
       var u = (await Api.get('admin/me', { auth: true })).data;
+      var prev = user.pending_count || 0;
       user.pending_count = u.pending_count;
       setPending(u.pending_count);
+      if (u.pending_count > prev) {
+        alertNew(u.pending_count - prev);
+        document.dispatchEvent(new CustomEvent('acicu:new-orders', { detail: { count: u.pending_count - prev } }));
+      }
     } catch (e) { /* 401 ditangani Api */ }
   }
 
@@ -79,6 +118,7 @@
     if (!b) return;
     b.textContent = n;
     b.classList.toggle('hidden', !n);
+    titleCount(n);
   }
 
   /** Dipanggil tiap halaman admin. Mengembalikan data user atau null (sudah dialihkan ke login). */

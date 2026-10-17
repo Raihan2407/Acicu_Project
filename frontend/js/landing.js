@@ -18,10 +18,12 @@
     document.getElementById('footWaLink').href = Util.waLink(c.whatsapp);
     document.getElementById('footWa').textContent = c.whatsapp_display;
     document.getElementById('footIg').textContent = c.instagram;
+    document.getElementById('footIgLink').href = 'https://www.instagram.com/' + encodeURIComponent(c.instagram);
+    document.getElementById('footTt').textContent = c.tiktok;
+    document.getElementById('footTtLink').href = 'https://www.tiktok.com/@' + encodeURIComponent(c.tiktok);
     document.getElementById('contactHours').textContent = 'Admin siap merespon setiap hari pukul ' + c.admin_hours + '.';
     var tag = document.getElementById('batchTag');
     if (cfg.store_open === false) { tag.textContent = 'Pre-order sedang ditutup'; tag.hidden = false; }
-    else if (cfg.batch_label) { tag.textContent = cfg.batch_label; tag.hidden = false; }
     else tag.hidden = true;
     document.getElementById('addCart').dataset.closed = cfg.store_open === false ? '1' : '';
     updateInfo();

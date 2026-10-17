@@ -271,16 +271,4 @@ class AdminApiTest extends TestCase
         $this->postJson('/api/admin/me/password', ['current_password' => 'rahasia-123', 'password' => 'SandiBaru12345', 'password_confirmation' => 'SandiBaru12345'])->assertOk();
         $this->postJson('/api/admin/login', ['login' => 'staf', 'password' => 'SandiBaru12345'])->assertOk();
     }
-
-    public function test_whatsapp_test_endpoint_is_owner_only_and_log_mode_does_not_send(): void
-    {
-        Sanctum::actingAs($this->staff);
-        $this->postJson('/api/admin/settings/test-whatsapp', ['phone' => '081234567890'])->assertForbidden();
-
-        Sanctum::actingAs($this->owner);
-        config(['acicu.notify.driver' => 'log']);
-        $this->postJson('/api/admin/settings/test-whatsapp', ['phone' => '081234567890'])
-            ->assertOk()->assertJsonPath('data.driver', 'log');
-        $this->postJson('/api/admin/settings/test-whatsapp', ['phone' => 'abc'])->assertStatus(422);
-    }
 }

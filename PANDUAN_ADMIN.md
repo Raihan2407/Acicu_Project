@@ -26,11 +26,10 @@ Sebelum rilis asli: `cd backend` lalu `php artisan acicu:reset-orders` (hanya me
 ## 6. Lupa sandi
 Admin minta Owner reset di Pengaturan → Akun Tim. Jika Owner lupa: `php artisan tinker` lalu `User::where('username','owner')->first()->update(['password'=>'SandiBaru123abc']);`. Jangan membagikan sandi lewat chat grup.
 
-## 7. QRIS dinamis & WhatsApp otomatis
-Diatur di `backend/.env`, lalu restart `php artisan serve`. Pada `.env` yang sudah ada, tambahkan barisnya sendiri.
-- **Demo gratis:** `ACICU_PAYMENT_DRIVER=mock` memberi kode QR unik per pesanan dan tombol "Simulasi bayar" di halaman pembayaran. Ini simulasi, bukan pembayaran sungguhan. Pesanan langsung lunas lalu masuk dapur.
-- **Pembayaran asli:** `ACICU_PAYMENT_DRIVER=midtrans`, isi `ACICU_MIDTRANS_SERVER_KEY`, dan daftarkan alamat `https://DOMAIN-ANDA/api/payments/midtrans/notification` sebagai Notification URL di dashboard Midtrans. Webhook harus bisa diakses internet. Akun produksi butuh verifikasi usaha dan ada biaya per transaksi, cek di situs Midtrans.
-- **Kembali ke QRIS statis:** `ACICU_PAYMENT_DRIVER=manual`.
-- **WhatsApp:** `ACICU_WA_DRIVER=log` (bawaan) hanya mencatat pesan di `backend/storage/logs/laravel.log`. Untuk kirim sungguhan: `ACICU_WA_DRIVER=fonnte` dan `ACICU_FONNTE_TOKEN=...` (akun Fonnte, cek harga dan aturannya di situs mereka).
-- Uji kirim: Pengaturan → Pembayaran & Kontak → **Kirim pesan uji**.
-- Setelah memperbarui kode, jalankan `php artisan migrate` (menambah kolom QR di tabel `orders`, data lama aman).
+## 7. Bukti bayar dan pemberitahuan ke owner
+- Pelanggan membayar ke QRIS/rekening, boleh mengunggah bukti (JPG/PNG/WEBP, maks 2 MB), lalu menekan "Saya Sudah Bayar". Bukti wajib secara bawaan (tanpa bukti, tombol menampilkan "Anda belum mengunggah bukti pembayaran"). Bisa dijadikan opsional di Pengaturan, Pembayaran & Kontak.
+- Admin membuka Data Pesanan, menekan "Validasi Bukti" (atau "Konfirmasi Bayar" bila tanpa bukti), mencocokkan nominal, lalu mengonfirmasi atau menolak.
+- Owner tahu ada pembayaran baru lewat: (1) panel admin yang terbuka: badge merah di Data Pesanan, bunyi, angka di judul tab, dan ikon lonceng untuk mematikan bunyi; (2) pelanggan menekan "Kabari Admin Sekarang" di halaman status, yang membuka WhatsApp dengan pesan siap kirim; (3) opsional Telegram: buat bot lewat @BotFather, lalu isi `ACICU_OWNER_NOTIFY=telegram`, `ACICU_TELEGRAM_BOT_TOKEN`, `ACICU_TELEGRAM_CHAT_ID` di `backend/.env` dan restart server.
+- Tidak ada pesan WhatsApp otomatis, jadi tidak ada risiko nomor diblokir.
+- Setelah memperbarui kode: `php artisan migrate` (menambah kolom bukti) dan `php artisan storage:link`.
+

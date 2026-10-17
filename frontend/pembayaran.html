@@ -56,14 +56,7 @@
             </div>
 
             <div class="pay-methods">
-              <div class="pay-box" id="dynBox" hidden>
-                <span class="pay-tag">QRIS DINAMIS <em id="dynTag">KHUSUS PESANAN INI</em></span>
-                <div class="dyn-qr" id="dynQr" aria-label="Kode QRIS pesanan ini"></div>
-                <p>Nominal <b>sudah terisi otomatis</b> dan kode ini hanya berlaku untuk pesanan ini.<br />Berlaku sampai <b id="qrUntil">-</b>.</p>
-                <button type="button" class="sim-btn" id="simBtn" hidden><i class="fa-solid fa-flask"></i> Simulasi bayar (mode demo)</button>
-              </div>
-
-              <div class="pay-box" id="staticBox">
+              <div class="pay-box">
                 <span class="pay-tag">QRIS</span>
                 <img id="qrisImg" src="assets/img/qris-placeholder.svg" alt="QRIS ACICU" />
                 <p>Scan QRIS untuk semua <b>E-Wallet &amp; Bank</b><br />(GoPay, OVO, ShopeePay, Dana, BCA, LinkAja, dll)</p>
@@ -78,14 +71,29 @@
                   <small>a.n. <span id="bankHolder">-</span></small>
                 </div>
                 <div class="pay-note"><i class="fa-solid fa-circle-info"></i>
-                  <span>Transfer <b>tepat sesuai total</b> di atas. Setelah membayar, tekan tombol <b>"Saya Sudah Bayar"</b>. Admin kami akan mengecek dan memproses pesananmu.</span></div>
+                  <span>Transfer <b>tepat sesuai total</b> di atas, simpan screenshot bukti transfer, lalu unggah di bawah ini.</span></div>
               </div>
+            </div>
+
+            <div class="proof" id="proofBox">
+              <input type="file" id="proofInput" accept="image/png,image/jpeg,image/webp" hidden />
+              <button type="button" class="proof-drop" id="proofDrop">
+                <span class="proof-ico"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+                <strong>Klik atau tarik bukti transfer ke sini</strong>
+                <small id="proofHint">Maksimal 2 MB, format JPG, PNG, atau WEBP. <span id="proofOpt">Wajib diunggah.</span></small>
+              </button>
+              <div class="proof-pick" id="proofPick" hidden>
+                <img id="proofThumb" alt="Bukti pembayaran" />
+                <div><b id="proofName"></b><small id="proofSize"></small></div>
+                <button type="button" class="proof-x" id="proofRemove" aria-label="Hapus bukti"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+              <p class="proof-err" id="proofErr" hidden></p>
             </div>
 
             <ol class="how">
               <li><b>Bayar</b> sesuai nominal lewat QRIS atau transfer.</li>
-              <li>Tekan <b>"Saya Sudah Bayar"</b> di sebelah kanan.</li>
-              <li>Admin <b>mengonfirmasi</b> lalu dapur mulai menggoreng pesananmu.</li>
+              <li><b>Unggah bukti</b>, lalu tekan "Saya Sudah Bayar".</li>
+              <li>Admin <b>memvalidasi</b>, lalu dapur mulai memproses pesananmu.</li>
             </ol>
           </section>
 
@@ -103,7 +111,6 @@
               </div>
               <div class="deliver-line"><i class="fa-solid fa-truck-fast"></i><span id="deliverInfo">-</span></div>
 
-              <p class="auto-note" id="autoNote" hidden><i class="fa-solid fa-circle-notch fa-spin"></i> Bayar lewat <b>QRIS</b> terdeteksi otomatis, halaman ini berpindah sendiri. Memilih <b>transfer manual</b>? Tekan tombol di bawah setelah membayar.</p>
               <button class="btn-pink" id="paidBtn" type="button"><i class="fa-solid fa-check"></i> Saya Sudah Bayar</button>
               <a class="btn-wa" id="waBtn" href="#" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Tanya Admin via WhatsApp</a>
               <p class="consult" id="adminHours"></p>
@@ -120,7 +127,6 @@
     <script src="js/common.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/layout.js"></script>
-    <script src="assets/vendor/qrcode.js"></script>
     <script src="js/payment.js"></script>
   </body>
 </html>

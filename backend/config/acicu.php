@@ -39,34 +39,26 @@ return [
         'whatsapp' => env('ACICU_WHATSAPP', '6282286512274'),
         'whatsapp_display' => env('ACICU_WHATSAPP_DISPLAY', '082286512274'),
         'instagram' => env('ACICU_INSTAGRAM', 'acicu.licious'),
-        'tiktok' => env('ACICU_TIKTOK', 'acicu.licious'),
+        'tiktok' => env('ACICU_TIKTOK', 'anekaacibungcu'),
         'admin_hours' => env('ACICU_ADMIN_HOURS', '08:00 - 19:00 WIB'),
     ],
 
     // Alamat frontend (dipakai untuk tautan status pesanan di pesan WhatsApp). Ambil yang pertama dari FRONTEND_URL.
     'frontend_url' => trim(explode(',', (string) env('FRONTEND_URL', 'http://localhost:5500'))[0]),
 
-    /*
-    | Pesan WhatsApp otomatis ke pelanggan.
-    |  log    = (bawaan) hanya dicatat di storage/logs/laravel.log, TIDAK ada pesan terkirim. Gratis, aman untuk uji.
-    |  fonnte = kirim sungguhan lewat layanan Fonnte (butuh akun & token, cek harga di situs mereka).
-    |  off    = nonaktif.
-    */
-    'notify' => [
-        'driver' => env('ACICU_WA_DRIVER', 'log'),
-        'fonnte_token' => env('ACICU_FONNTE_TOKEN'),
-    ],
+    // Bukti pembayaran: true (bawaan) = wajib diunggah sebelum menekan "Saya Sudah Bayar", false = opsional.
+    'require_proof' => (bool) env('ACICU_REQUIRE_PROOF', true),
 
     /*
-    | Pembayaran QRIS.
-    |  manual   = (bawaan) QRIS statis (gambar) + admin konfirmasi manual.
-    |  mock     = QRIS dinamis SIMULASI: kode unik per pesanan + tombol "simulasi bayar". Gratis, hanya untuk demo/kuliah.
-    |  midtrans = QRIS dinamis asli lewat Midtrans (sandbox gratis untuk uji; produksi butuh akun merchant terverifikasi).
+    | Pemberitahuan ke pemilik saat pelanggan menekan "Saya Sudah Bayar" (gratis, resmi, tidak berisiko diblokir):
+    |  off      = (bawaan) tidak ada pesan; pemilik memantau lewat panel admin (badge, suara, notifikasi browser).
+    |  telegram = kirim ke chat Telegram pemilik lewat bot (ACICU_TELEGRAM_BOT_TOKEN dan ACICU_TELEGRAM_CHAT_ID).
+    |  log      = hanya dicatat di storage/logs/laravel.log (uji).
     */
-    'gateway' => [
-        'driver' => env('ACICU_PAYMENT_DRIVER', 'manual'),
-        'midtrans_server_key' => env('ACICU_MIDTRANS_SERVER_KEY'),
-        'midtrans_production' => (bool) env('ACICU_MIDTRANS_PRODUCTION', false),
+    'owner_notify' => [
+        'driver' => env('ACICU_OWNER_NOTIFY', 'off'),
+        'telegram_bot_token' => env('ACICU_TELEGRAM_BOT_TOKEN'),
+        'telegram_chat_id' => env('ACICU_TELEGRAM_CHAT_ID'),
     ],
 
     // Masa berlaku token login admin (jam). "Ingat saya" memakai remember_hours.
@@ -76,6 +68,7 @@ return [
     // Akun admin awal (dibuat oleh seeder). Jika ACICU_ADMIN_PASSWORD kosong,
     // seeder membuat sandi acak dan menampilkannya SEKALI di terminal.
     'admin_password' => env('ACICU_ADMIN_PASSWORD'),
+    'owner_password' => env('ACICU_OWNER_PASSWORD'),
     'owner_email' => env('ACICU_OWNER_EMAIL', 'owner@acicu.test'),
     'admin_email' => env('ACICU_ADMIN_EMAIL', 'admin@acicu.test'),
 ];

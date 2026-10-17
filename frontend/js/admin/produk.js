@@ -10,7 +10,7 @@
   }
 
   function render() {
-    document.getElementById('prodInfo').textContent = meta.total + ' produk ditampilkan · ' + meta.active_count + ' aktif · kuota per ' + Util.dateShort(Util.todayIso());
+    document.getElementById('prodInfo').textContent = meta.total + ' menu, ' + meta.active_count + ' aktif';
     var cats = [''].concat(meta.categories || []);
     document.getElementById('chips').innerHTML = cats.map(function (c) {
       return '<button class="chip' + (c === category ? ' on' : '') + '" data-c="' + esc(c) + '">' + (c || 'Semua') + '</button>';
@@ -95,7 +95,7 @@
       var b = e.target.closest('[data-act]'); if (!b) return;
       if (b.dataset.act === 'quota') {
         var inp = document.querySelector('[data-q="' + b.dataset.id + '"]');
-        try { await Api.patch('admin/products/' + b.dataset.id + '/stock', { auth: true, json: { daily_quota: Number(inp.value) } }); Util.toast('Kuota diperbarui. Landing page ikut berubah.', 'success'); load(); }
+        try { await Api.patch('admin/products/' + b.dataset.id + '/stock', { auth: true, json: { daily_quota: Number(inp.value) } }); Util.toast('Kuota diperbarui.', 'success'); load(); }
         catch (x) { Util.toast(x.message, 'error'); }
         return;
       }
